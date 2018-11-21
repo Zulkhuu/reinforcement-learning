@@ -10,7 +10,7 @@ This repository contains implementations of Deep Reinforcement Learning algorith
 * [David Silver's course on reinforcement learning](http://www0.cs.ucl.ac.uk/staff/D.Silver/web/Teaching.html)
 * [Udacity Deep Reinforcement Learning Nanodegree program](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893)  
 
-#### Textbooks
+### Textbooks
 * [Szepesvari, Algorithms for Reinforcement Learning](https://sites.ualberta.ca/~szepesva/RLBook.html)
 * [Sutton & Barto, Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html)
 
