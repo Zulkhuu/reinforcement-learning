@@ -1,0 +1,12 @@
+# ignore all logs
+*.log
+
+# Unity environment
+navigation/Banana_Linux/
+
+# Python binaries
+**/__pycache__/
+*.py[cod]
+
+# IPython checkpoints
+**/.ipynb_checkpoints
