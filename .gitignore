@@ -2,7 +2,8 @@
 *.log
 
 # Unity environment
-navigation/Banana_Linux/
+#navigation/Banana_Linux/
+BananaCollector/Banana_Linux/
 
 # Python binaries
 **/__pycache__/
@@ -10,3 +11,6 @@ navigation/Banana_Linux/
 
 # IPython checkpoints
 **/.ipynb_checkpoints
+
+# VS code temp files
+**/.vscode/

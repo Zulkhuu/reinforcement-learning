@@ -1,8 +1,10 @@
+import sys
+sys.path.append('../')
 import numpy as np
 import random
 from collections import namedtuple, deque
 
-from model import QNetwork
+from networks.model import QNetwork
 
 import torch
 import torch.nn.functional as F
