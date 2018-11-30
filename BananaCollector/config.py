@@ -10,7 +10,7 @@ HYPERPARAMS = {
 
         # DQN agent parameters
         'seed':                 0,                  # random seed
-        'buffer_size':          10000,              # replay buffer size
+        'buffer_size':          100000,             # replay buffer size
         'batch_size':           64,                 # minibatch size
         'update_every':         4,                  # network updating every update_interval steps
         'learning_rate':        5e-4,               # learning rate
