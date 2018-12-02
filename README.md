@@ -67,7 +67,7 @@ To set up your python environment to run the code in this repository, follow the
 4. Clone the repository and install several dependencies.
 ```bash
 git clone https://github.com/Zulkhuu/reinforcement-learning.git
-pip install .
+pip install -r requirements.txt
 ```
 
 5. Create an [IPython kernel](http://ipython.readthedocs.io/en/stable/install/kernel_install.html) for the `drlnd` environment.  
