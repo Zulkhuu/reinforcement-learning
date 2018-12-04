@@ -12,5 +12,8 @@ BananaCollector/Banana_Linux/
 # IPython checkpoints
 **/.ipynb_checkpoints
 
-# VS code temp files
+# VS code files
 **/.vscode/
+
+# Pycharm files
+**/.idea/

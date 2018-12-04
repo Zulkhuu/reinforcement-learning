@@ -12,7 +12,7 @@ import torch.optim as optim
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class AgentDDQN():
+class DDQN():
     """Interacts with and learns from the environment."""
 
     def __init__(self, param):
@@ -36,8 +36,8 @@ class AgentDDQN():
         self.seed = random.seed(int(param['seed']))
 
         # Q-Network
-        self.qnetwork_local = QNetwork(state_size, self.action_size, int(param['seed'])).to(device)
-        self.qnetwork_target = QNetwork(state_size, self.action_size, int(param['seed'])).to(device)
+        self.qnetwork_local = QNetwork(state_size, self.action_size, int(param['seed']), int(param['fc1_units']), int(param['fc2_units'])).to(device)
+        self.qnetwork_target = QNetwork(state_size, self.action_size, int(param['seed']), int(param['fc1_units']), int(param['fc2_units'])).to(device)
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=self.lr)
 
         # Replay memory
@@ -86,8 +86,12 @@ class AgentDDQN():
         """
         states, actions, rewards, next_states, dones = experiences
 
+        # Get best action for the next states from local model
+        _,next_actions = self.qnetwork_local(next_states).detach().max(1)
+
         # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+        Q_targets_next = self.qnetwork_target(next_states).gather(1, next_actions.unsqueeze(1))
+
         # Compute Q targets for current states
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
