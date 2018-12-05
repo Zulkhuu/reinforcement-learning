@@ -158,7 +158,7 @@ def objective(trial):
 # Create a new Optuna study object.
 study = optuna.create_study()
 # Invoke optimization of the objective function.
-study.optimize(objective , n_trials=1, n_jobs=1)
+study.optimize(objective , n_trials=72, n_jobs=1)
 
 #Print and Save result to .csv file
 print('Best value: {} (params: {})\n'.format(study.best_value, study.best_params))
