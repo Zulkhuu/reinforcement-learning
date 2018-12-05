@@ -17,3 +17,6 @@ BananaCollector/Banana_Linux/
 
 # Pycharm files
 **/.idea/
+
+# Local test py file
+test.py
