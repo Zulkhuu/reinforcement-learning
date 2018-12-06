@@ -3,7 +3,6 @@
 
 import sys
 sys.path.append('../')
-sys.path.append('../../')
 
 from unityagents import UnityEnvironment
 from collections import deque
@@ -32,17 +31,19 @@ env_info = env.reset(train_mode=True)[brain_name]
 hparams = config.HYPERPARAMS['DDQN']
 params = config.TRAINPARAMS['BananaCollector']
 
+# Save results to csv file
+result_filename = 'lr_batchsize_fc_tuning'
 hyperscores = []
 
-def train_dqn(learning_rate, buffer_size, update_every): #batch_size, fc_units):
+def train_dqn(learning_rate, batch_size, fc_units):#buffer_size, update_every):
 
     # Set tunable parameters
     hparams['learning_rate'] = learning_rate
-    hparams['update_every'] = int(update_every)
-    hparams['buffer_size'] = int(buffer_size)
-    #hparams['batch_size'] = int(batch_size)
-    #hparams['fc1_units'] = int(fc_units)
-    #hparams['fc2_units'] = int(fc_units)
+    #hparams['update_every'] = int(update_every)
+    #hparams['buffer_size'] = int(buffer_size)
+    hparams['batch_size'] = int(batch_size)
+    hparams['fc1_units'] = int(fc_units)
+    hparams['fc2_units'] = int(fc_units)
 
     # Create agent instance
     print("Created agent with following hyperparameter values:")
@@ -113,8 +114,8 @@ def train_dqn(learning_rate, buffer_size, update_every): #batch_size, fc_units):
         if np.mean(scores_window)>=params['solve_score']:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, np.mean(scores_window)))
             # Filename string
-            filename = "{:s}_lr{:.1E}_buffer{:d}_update{:d}_solved{:d}"
-            filename = filename.format(hparams['name'], hparams['learning_rate'], hparams['buffer_size'], hparams['update_every'], i_episode-100)
+            filename = "{:s}_lr{:.1E}_batch{:d}_model{:d}x{:d}_solved{:d}"
+            filename = filename.format(hparams['name'], hparams['learning_rate'], hparams['batch_size'], hparams['fc_units'], hparams['fc_units'], i_episode-100)
             torch.save(agent.qnetwork_local.state_dict(), '../models/{:s}.pth'.format(filename))
             break
 
@@ -124,7 +125,7 @@ def train_dqn(learning_rate, buffer_size, update_every): #batch_size, fc_units):
 
     hyperscores.append([learning_rate, buffer_size, update_every, i_episode-100])
     temp_df = pd.DataFrame(hyperscores,columns=['learning_rate', 'buffer_size', 'update_every', 'i_episode'])#, 'batch_size', 'fc_units', 'i_episode'])
-    temp_df.to_csv('../scores/lr_buffersize_update_tuning.csv')
+    temp_df.to_csv('../scores/{:s}.csv'.format(result_filename))
 
     time.sleep(1)
     return i_episode-100
@@ -132,22 +133,22 @@ def train_dqn(learning_rate, buffer_size, update_every): #batch_size, fc_units):
 def objective(trial):
     #Optuna objective function
     learning_rate = trial.suggest_categorical('learning_rate', [5e-5, 1e-4, 5e-4, 1e-3])
-    buffer_size = trial.suggest_categorical('buffer_size', [50000, 100000, 200000])
-    update_every = trial.suggest_categorical('update_every', [2, 4, 8])
-    #batch_size = trial.suggest_categorical('batch_size', [32, 64, 128, 256])
-    #fc_units = trial.suggest_categorical('fc_units', [32, 64])
+    #buffer_size = trial.suggest_categorical('buffer_size', [50000, 100000, 200000])
+    #update_every = trial.suggest_categorical('update_every', [2, 4, 8])
+    batch_size = trial.suggest_categorical('batch_size', [32, 64, 128, 256])
+    fc_units = trial.suggest_categorical('fc_units', [32, 64])
 
-    return train_dqn(learning_rate, buffer_size, update_every)#, batch_size, fc_units)
+    return train_dqn(learning_rate, batch_size, fc_units) #buffer_size, update_every)#,
 
 # Create a new Optuna study object.
 study = optuna.create_study()
 # Invoke optimization of the objective function.
-study.optimize(objective , n_trials=72, n_jobs=1)
+study.optimize(objective , n_trials=1, n_jobs=1)
 
 #Print and Save result to .csv file
 print('Best value: {} (params: {})\n'.format(study.best_value, study.best_params))
-df = study.trials_dataframe()
-df.to_csv('../scores/lr_buffersize_update_tuning_optuna.csv')
+#df = study.trials_dataframe()
+#df.to_csv('../scores/{:s}_optuna.csv'.format(result_filename))
 
 # Close the environment
 env.close()
