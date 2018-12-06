@@ -1,45 +1,14 @@
 # Deep Reinforcement Learning
 
+<!-- Insert cool combined gif here-->
+
 This repository contains implementations of Deep Reinforcement Learning algorithms.
 
-## Resources
+## Projects
 
-### Online courses
-* [Deep RL Bootcamp](https://sites.google.com/view/deep-rl-bootcamp/lectures)
-* [Deep Reinforcement Learning UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/)
-* [David Silver's course on reinforcement learning](http://www0.cs.ucl.ac.uk/staff/D.Silver/web/Teaching.html)
-* [Udacity Deep Reinforcement Learning Nanodegree program](https://www.udacity.com/)
-
-### Textbooks
-* [The Deep Learning textbook](http://www.deeplearningbook.org/)
-* [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html)
-
-## Projects using Unity ML-Agents
-
-* [The Taxi Problem]| _Coming soon!_
-* [Navigation](https://github.com/Zulkhuu/reinforcement-learning/navigation/tree/master): DQN agent to collect yellow bananas while avoiding blue bananas. Solved in 381 episodes
+* [Navigation](https://github.com/Zulkhuu/reinforcement-learning/tree/master/BananaCollector): DQN agent to collect yellow bananas while avoiding blue bananas.
 * [Continuous Control]| _Coming soon!_
 * [Collaboration and Competition]| _Coming soon!_
-
-## OpenAI Gym Benchmarks
-
-### Classic Control
-- `Acrobot-v1` with **Tile Coding** | _Coming soon!_
-- `Cartpole-v0` with **Hill Climbing** | _Coming soon!_
-- `Cartpole-v0` with **REINFORCE** | _Coming soon!_
-- `MountainCarContinuous-v0` with **Cross-Entropy Method** | _Coming soon!_
-- `MountainCar-v0` with **Uniform-Grid Discretization** | _Coming soon!_
-- `Pendulum-v0` with **Deep Deterministic Policy Gradients (DDPG)** | _Coming soon!_
-
-### Box2d
-- `BipedalWalker-v2` with **Deep Deterministic Policy Gradients (DDPG)** | _Coming soon!_
-- `CarRacing-v0` with **Deep Q-Networks (DQN)** | _Coming soon!_
-- `LunarLander-v2` with **Deep Q-Networks (DQN)** | _Coming soon!_
-
-### Toy Text
-- `FrozenLake-v0` with **Dynamic Programming** | _Coming soon!_
-- `Blackjack-v0` with **Monte Carlo Methods** | _Coming soon!_
-- `CliffWalking-v0` with **Temporal-Difference Methods** | _Coming soon!_
 
 ## Dependencies
 
@@ -67,7 +36,8 @@ To set up your python environment to run the code in this repository, follow the
 4. Clone the repository and install several dependencies.
 ```bash
 git clone https://github.com/Zulkhuu/reinforcement-learning.git
-pip install -r requirements.txt
+cd python
+pip install .
 ```
 
 5. Create an [IPython kernel](http://ipython.readthedocs.io/en/stable/install/kernel_install.html) for the `drlnd` environment.  
@@ -76,3 +46,20 @@ python -m ipykernel install --user --name drlnd --display-name "drlnd"
 ```
 
 6. Before running code in a notebook, change the kernel to match the `drlnd` environment by using the drop-down `Kernel` menu.
+
+## Future work
+
+- Continuous control - Train an robotic arm to reach target locations using actor critic method
+- Collaboration and Competition - Train a pair of agents to play tennis
+
+## Resources
+
+### Online courses
+* [Deep RL Bootcamp](https://sites.google.com/view/deep-rl-bootcamp/lectures)
+* [Deep Reinforcement Learning UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/)
+* [David Silver's course on reinforcement learning](http://www0.cs.ucl.ac.uk/staff/D.Silver/web/Teaching.html)
+* [Udacity Deep Reinforcement Learning Nanodegree program](https://www.udacity.com/)
+
+### Textbooks
+* [The Deep Learning textbook](http://www.deeplearningbook.org/)
+* [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html)

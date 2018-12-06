@@ -1,9 +1,12 @@
 # Project: Banana collector
 
+<p align="center">
+    <img src="docs/images/trained_agent.gif" height="400px">
+</p>
+
 ## Introduction
 
-For this project, we will train an agent to navigate (and collect bananas!) in a large, square world.  
-
+For this project, you will train an agent to navigate and collect bananas in a large, square world.  
 
 A reward of +1 is provided for collecting a yellow banana, and a reward of -1 is provided for collecting a blue banana.  Thus, the goal of your agent is to collect as many yellow bananas as possible while avoiding blue bananas.  
 
@@ -17,7 +20,9 @@ The task is episodic, and in order to solve the environment, your agent must get
 
 ## Getting Started
 
-1. Download the environment from one of the links below.  You need only select the environment that matches your operating system:
+1. Clone the [root repository](https://github.com/Zulkhuu/reinforcement-learning/tree/master) and install its dependencies.
+
+2. Download the BananaCollector environment from one of the links below.  You need only select the environment that matches your operating system:
     - Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux.zip)
     - Mac OSX: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana.app.zip)
     - Windows (32-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Windows_x86.zip)
@@ -27,10 +32,8 @@ The task is episodic, and in order to solve the environment, your agent must get
 
     (_For AWS_) If you'd like to train the agent on AWS (and have not [enabled a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux_NoVis.zip) to obtain the environment.
 
-2. Place the file in the DRLND GitHub repository, in the `p1_navigation/` folder, and unzip (or decompress) the file.
+3. Place the file in the cloned reinforcement-learning repository's' `BananaCollector/` folder, and unzip (or decompress) the file.
 
 ## Instructions
 
-Follow the instructions in `Navigation.ipynb` to get started with training your own agent!  
-
-Then, place the file in the `p1_navigation/` folder in the clone of This GitHub repository, and unzip (or decompress) the file.  Next, open `Navigation_Pixels.ipynb` and follow the instructions to learn how to use the Python API to control the agent.
+Follow the instructions in `Navigation.ipynb` to get started with training your the agent or watch already trained agent running!  
