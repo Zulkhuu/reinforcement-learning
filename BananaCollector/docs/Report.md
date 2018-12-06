@@ -62,13 +62,16 @@ Double Q Learning solves this issue by using DQN's target Q-Network's parameters
 
 PyTorch based implementation of DQN agent from Udacity's Deep Reinforcement Learning nanodegree course's GitHub [page](https://github.com/udacity/deep-reinforcement-learning/tree/master/dqn/solution) was used as a baseline code. Original source code was intended for solving OpenAI gym's Lunar Lander problem with vanilla DQN algorithms.
 
-In this project, Agent will try to solve Unity's [Banana Collector](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector) world efficiently with Double DQN algorithm.
+In this project, Agent is modified to solve Unity's [Banana Collector](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector) world. To improve the efficiently of the agent, Double DQN algorithm was used.
 
 Full implementation of Double DQN agent can be found in [ddqn_agent.py](https://github.com/Zulkhuu/reinforcement-learning/tree/master/BananaCollector/agents/ddqn_agent.py) file.
 
+ Other improvements over DQN algorithms such as: Prioritized Experience Replay and Dueling Q Networks are planned to be added in future.
+
 # Hyperparameter tuning
 
-For tuning some of the most important hyperparameters, A hyperparameter optimization framework [Optuna](https://optuna.org/) was used. Since Optuna framework comes as a native Python package, it can be integrated effortlessly with current implementation.
+To get best result from the agent, it is important to find optimal values for some of the hyperparameters such as learning rate, batch size and replay buffer size.
+In order to tune those hyperparameters, A hyperparameter optimization framework [Optuna](https://optuna.org/) was used. Since Optuna framework comes as a native Python package, it can be integrated effortlessly with current implementation.
 
 Hyperparameter tuning was run with following setup:
 
@@ -78,7 +81,7 @@ Hyperparameter tuning was run with following setup:
   - Learning rate with search space of [5e-5 to 1e-4]
   - Batch size with search space of [32, 64, 128, 256]
   - Q-network size with search space of [32, 64]
-  - Buffer size with search space of [50k, 100k, 200k]
+  - Replay buffer size with search space of [50k, 100k, 200k]
   - Update interval with search space of [2, 4, 8]
 
 Since agent's performance depends on random initialization, same parameter configuration will be run multiple times and its mean value will be evaluated.
@@ -95,15 +98,15 @@ Below image shows the relation between learning rate, batch size and neural netw
     <img src="plots/learning_rate_vs_batchsize_fcunit.png" height="500px">
 </p>
 
-Overall larger batch_size tends to result in better result and can handle larger learning rate. Only when the batch size is 256, performance improves when learning rate increase from 0.0005 to 0.001. It is reasonable to think that smaller batch sizes can not handle larger learning rate due to noise.
-
-Best combination in this case is batch size of 256 and learning rate of 0.001 followed by batch size of 64 and learning rate of 0.0005.
+Overall larger batch size tends to result in better result and can handle larger learning rate. Only when the batch size is 256, performance improves when learning rate increase from 0.0005 to 0.001. It is reasonable to think that smaller batch sizes can not handle larger learning rate due to noise.
 
 Larger neural network with size of 64 nodes in each layer performs better than smaller network when learning rate is between [5e-5 to 1e-4]. But when the learning rate increases it becomes difficult to tell which one is better.
 
+Best combination in this case is batch size of 256, learning rate of 0.001 and Q-network with 32 nodes in each layer.
+
 ## Buffer size vs Learning rate and Update interval
 
-Below image shows the relation between learning rate, buffer size and update interval.
+Below image shows the relation between learning rate, replay buffer size and update interval.
 
 <p align="center">
     <img src="plots/buffer_size_vs_learning_rate_updatet.png" height="500px">
@@ -120,7 +123,7 @@ Based on above observation, following hyperparameter values were chosen as optim
 - Update interval: 4
 - Neural network size: 32
 
-Training agent with above hyperparameters gives following result:
+Training agent with above hyperparameter values, solves the environment in 371 episodes. Each episode's score and average score during training is shown below:
 
 <p align="center">
     <img src="plots/DDQN_lr1.0E-03_batch256_model32x32_buffer100000_update4_solved371.png" height="500px">
