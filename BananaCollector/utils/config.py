@@ -38,7 +38,7 @@ HYPERPARAMS = {
         'buffer_size':          100000,             # replay buffer size
         'batch_size':           256,                 # minibatch size
         'update_every':         4,                  # network updating every update_interval steps
-        'learning_rate':        5e-4,               # learning rate
+        'learning_rate':        1e-3,               # learning rate
         'tau':                  1e-3,               # for soft update of target parameters
         'gamma':                0.99,               # discount factor
 
