@@ -95,7 +95,7 @@ Detailed implementation can be found in [hyperparameter_tuning.py](https://githu
 Below image shows the relation between learning rate, batch size and neural network size.
 
 <p align="center">
-    <img src="plots/learning_rate_vs_batchsize_fcunit.png" height="500px">
+    <img src="plots/learning_rate_vs_batchsize_fcunit.png" height="400px">
 </p>
 
 Overall larger batch size tends to result in better result and can handle larger learning rate. Only when the batch size is 256, performance improves when learning rate increase from 0.0005 to 0.001. It is reasonable to think that smaller batch sizes can not handle larger learning rate due to noise.
@@ -109,7 +109,7 @@ Best combination in this case is batch size of 256, learning rate of 0.001 and Q
 Below image shows the relation between learning rate, replay buffer size and update interval.
 
 <p align="center">
-    <img src="plots/buffer_size_vs_learning_rate_updatet.png" height="500px">
+    <img src="plots/buffer_size_vs_learning_rate_updatet.png" height="400px">
 </p>
 
 Almost all combination of learning rate and update interval got their best performance when buffer size is 100000. Thus, buffer size of 100000 seems to be optimal value and increasing or decreasing buffer size results in much poorer performance.
@@ -126,7 +126,7 @@ Based on above observation, following hyperparameter values were chosen as optim
 Training agent with above hyperparameter values, solves the environment in 371 episodes. Each episode's score and average score during training is shown below:
 
 <p align="center">
-    <img src="plots/DDQN_lr1.0E-03_batch256_model32x32_buffer100000_update4_solved371.png" height="500px">
+    <img src="plots/DDQN_lr1.0E-03_batch256_model32x32_buffer100000_update4_solved371.png" height="300px">
 </p>
 
 # Future work
