@@ -45,7 +45,7 @@ HYPERPARAMS = {
         # Q network parameters
         'state_size':           37,                 # state size
         'action_size':          4,                  # action size
-        'fc1_units':            64,                 # Number of nodes in first hidden layer
-        'fc2_units':            64,                 # Number of nodes in second hidden layer
+        'fc1_units':            32,                 # Number of nodes in first hidden layer
+        'fc2_units':            32,                 # Number of nodes in second hidden layer
     }
 }
