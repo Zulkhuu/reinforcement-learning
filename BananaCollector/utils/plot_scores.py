@@ -44,6 +44,7 @@ def plot_buffer_vs_lr_updatet():
     tdf = df.groupby(['learning_rate', 'update_every']).mean().reset_index()
     tdf = tdf[['learning_rate', 'update_every']]
 
+    plt.figure(figsize=(11,5))
     for index, row in tdf.iterrows():
         #print("batch_size:{:}, fc_units:{:}".format(row['batch_size'], row['fc_units']))
         plt.plot( 'buffer_size', 'i_episode',
@@ -180,7 +181,7 @@ def plot_learning_curve(filename):
 #Uncomment the necessary plot and run
 
 # Plot learning curve of particular training
-plot_learning_curve('DDQN_lr1.0E-03_batch256_model64x64_buffer100000_update4_solved410')
+#plot_learning_curve('DDQN_lr1.0E-03_batch256_model64x64_buffer100000_update4_solved410')
 
 # Plot learning rate vs batch_size and fully connected units of neural network
 #plot_lr_vs_batch_fc()
@@ -192,7 +193,7 @@ plot_learning_curve('DDQN_lr1.0E-03_batch256_model64x64_buffer100000_update4_sol
 #plot_lr_vs_buffer()
 
 # Plot buffer size vs learning rate and update interval
-#plot_buffer_vs_lr_updatet()
+plot_buffer_vs_lr_updatet()
 
 # Plot Batch_size vs learning rate and fully connected units of neural network
 #plot_batch_vs_lr_fc()
