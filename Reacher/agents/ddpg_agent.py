@@ -12,14 +12,6 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-#self.buffer_size = int(1e6)  # replay buffer size
-#self.batch_size = 128        # minibatch size
-#self.gamma = 0.99            # discount factor
-#self.tau = 1e-3              # for soft update of target parameters
-#self.lr_actor = 1e-4         # learning rate of the actor
-#self.lr_critic = 3e-4        # learning rate of the critic
-#self.weight_decay = 0.0001   # L2 weight decay
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class DDPG():
@@ -34,7 +26,6 @@ class DDPG():
             action_size (int): dimension of each action
             random_seed (int): random seed
         """
-        #self.update_every = param['update_every']       # how often to update the network
         self.buffer_size = int(param['buffer_size'])    # replay buffer size
         self.batch_size = param['batch_size']           # minibatch size
         self.gamma = param['gamma']                     # discount factor
@@ -42,6 +33,8 @@ class DDPG():
         self.lr_actor = param['lr_actor']               # learning rate
         self.lr_critic = param['lr_critic']             # learning rate
         self.weight_decay = param['weight_decay']       # weight decay
+        fc1_units = int(param['fc1_units'])             # first layer node size (both actor and critic network)
+        fc2_units = int(param['fc2_units'])             # second layer node size (both actor and critic network)
 
         state_size = param['state_size']
         action_size = param['action_size']
@@ -52,13 +45,13 @@ class DDPG():
         self.seed = random.seed(random_seed)
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_target = Actor(state_size, action_size, random_seed).to(device)
+        self.actor_local = Actor(state_size, action_size, random_seed, fc1_units, fc2_units).to(device)
+        self.actor_target = Actor(state_size, action_size, random_seed, fc1_units, fc2_units).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr_actor)
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_target = Critic(state_size, action_size, random_seed).to(device)
+        self.critic_local = Critic(state_size, action_size, random_seed, fc1_units, fc2_units).to(device)
+        self.critic_target = Critic(state_size, action_size, random_seed, fc1_units, fc2_units).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr_critic, weight_decay=self.weight_decay)
 
         # Noise process
@@ -165,7 +158,6 @@ class OUNoise:
         """Update internal state and return it as a noise sample."""
         x = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.size)
-        #dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
         self.state = x + dx
         return self.state
 
