@@ -131,19 +131,19 @@ def train_ddpg(lr_actor=1e-4, lr_critic=1e-4, batch_size=128, fc1_units=256, fc2
     return i_episode-100
 
 # Hidden layer size
-#train_ddpg(1e-4, 1e-4, 128, 400, 300)
-#train_ddpg(1e-4, 1e-4, 128, 256, 128)
-#train_ddpg(1e-4, 1e-4, 128, 128, 64)
+train_ddpg(1e-4, 1e-4, 128, 400, 300)
+train_ddpg(1e-4, 1e-4, 128, 256, 128)
+train_ddpg(1e-4, 1e-4, 128, 128, 64)
 
 # Learning rates
-#train_ddpg(1e-4, 5e-4, 128, 256, 128)
-#train_ddpg(5e-4, 1e-4, 128, 256, 128)
-#train_ddpg(1e-4, 5e-5, 128, 256, 128)
-#train_ddpg(5e-5, 1e-4, 128, 256, 128)
+train_ddpg(1e-4, 5e-4, 128, 256, 128)
+train_ddpg(5e-4, 1e-4, 128, 256, 128)
+train_ddpg(1e-4, 5e-5, 128, 256, 128)
+train_ddpg(5e-5, 1e-4, 128, 256, 128)
 
 # Batch size
 train_ddpg(1e-4, 1e-4, 256, 256, 128)
-#train_ddpg(1e-4, 1e-4, 128, 256, 128)
+train_ddpg(1e-4, 1e-4, 128, 256, 128)
 train_ddpg(1e-4, 1e-4, 64, 256, 128)
 
 # Close the environment

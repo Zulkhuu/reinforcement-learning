@@ -30,8 +30,8 @@ class DDPG():
         self.batch_size = param['batch_size']           # minibatch size
         self.gamma = param['gamma']                     # discount factor
         self.tau = param['tau']                         # for soft update of target parameters
-        self.lr_actor = param['lr_actor']               # learning rate
-        self.lr_critic = param['lr_critic']             # learning rate
+        self.lr_actor = param['lr_actor']               # learning rate for actor
+        self.lr_critic = param['lr_critic']             # learning rate for critic
         self.weight_decay = param['weight_decay']       # weight decay
         fc1_units = int(param['fc1_units'])             # first layer node size (both actor and critic network)
         fc2_units = int(param['fc2_units'])             # second layer node size (both actor and critic network)

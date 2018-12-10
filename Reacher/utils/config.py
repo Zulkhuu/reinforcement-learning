@@ -4,7 +4,7 @@ TRAINPARAMS = {
         #Training parameters
         'solve_score':          30.0,
         'scores_window_size':   100,
-        'n_episodes':           200,
+        'n_episodes':           2000,
     }
 }
 
