@@ -16,7 +16,7 @@
 In this project, DDPG(Deep Deterministic Policy Gradient) agent was implemented to control robotic arm in a Unity's [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) world.  
 
 <p align="center">
-    <img src="images/trained_agent.gif" height="400px">
+    <img src="images/trained_agent.gif" height="300px">
 </p>
 
 ## Problem definition
@@ -141,9 +141,10 @@ Training agent with above hyperparameter values, solves the environment in 256 e
 
 # Future work
 
-Implement state of the art actor-critic algorithms.
-- Asynchronous Methods for Deep Reinforcement Learning [[paper]](https://arxiv.org/pdf/1602.01783.pdf)
-- Proximal Policy Optimization Algorithms [[paper]](https://arxiv.org/pdf/1707.06347.pdf)
+- Run current implementation with 20 agents.
+- Implement state of the art actor-critic algorithms.
+  - Asynchronous Methods for Deep Reinforcement Learning [[paper]](https://arxiv.org/pdf/1602.01783.pdf)
+  - Proximal Policy Optimization Algorithms [[paper]](https://arxiv.org/pdf/1707.06347.pdf)
 
 # References
 
