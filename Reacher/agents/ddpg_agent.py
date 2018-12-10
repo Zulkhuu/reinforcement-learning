@@ -1,9 +1,12 @@
+import sys
+sys.path.append('../')
+
 import numpy as np
 import random
 import copy
 from collections import namedtuple, deque
 
-from model import Actor, Critic
+from utils.model import Actor, Critic
 
 import torch
 import torch.nn.functional as F
@@ -19,10 +22,10 @@ import torch.optim as optim
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class Agent():
+class DDPG():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, params):
+    def __init__(self, param    ):
         """Initialize an Agent object.
 
         Params
@@ -32,17 +35,17 @@ class Agent():
             random_seed (int): random seed
         """
         #self.update_every = param['update_every']       # how often to update the network
-        self.self.buffer_size = int(param['self.buffer_size'])    # replay buffer size
-        self.self.batch_size = param['self.batch_size']           # minibatch size
-        self.self.gamma = param['self.gamma']                     # discount factor
-        self.self.tau = param['self.tau']                         # for soft update of target parameters
-        self.self.lr_actor = param['self.lr_actor']               # learning rate
-        self.self.lr_critic = param['self.lr_critic']             # learning rate
-        self.self.weight_decay = param['self.weight_decay']       # weight decay
+        self.buffer_size = int(param['buffer_size'])    # replay buffer size
+        self.batch_size = param['batch_size']           # minibatch size
+        self.gamma = param['gamma']                     # discount factor
+        self.tau = param['tau']                         # for soft update of target parameters
+        self.lr_actor = param['lr_actor']               # learning rate
+        self.lr_critic = param['lr_critic']             # learning rate
+        self.weight_decay = param['weight_decay']       # weight decay
 
-        state_size = params['state_size']
-        action_size = params['action_size']
-        random_seed = params['random_seed']
+        state_size = param['state_size']
+        action_size = param['action_size']
+        random_seed = param['random_seed']
 
         self.state_size = state_size
         self.action_size = action_size
@@ -51,12 +54,12 @@ class Agent():
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
         self.actor_target = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.self.lr_actor)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr_actor)
 
         # Critic Network (w/ Target Network)
         self.critic_local = Critic(state_size, action_size, random_seed).to(device)
         self.critic_target = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.self.lr_critic, self.weight_decay=self.self.weight_decay)
+        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr_critic, weight_decay=self.weight_decay)
 
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
@@ -88,7 +91,7 @@ class Agent():
     def reset(self):
         self.noise.reset()
 
-    def learn(self, experiences, self.gamma):
+    def learn(self, experiences, gamma):
         """Update policy and value parameters using given batch of experience tuples.
         Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
         where:
@@ -107,7 +110,7 @@ class Agent():
         actions_next = self.actor_target(next_states)
         Q_targets_next = self.critic_target(next_states, actions_next)
         # Compute Q targets for current states (y_i)
-        Q_targets = rewards + (self.gamma * Q_targets_next * (1 - dones))
+        Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
         # Compute critic loss
         Q_expected = self.critic_local(states, actions)
         critic_loss = F.mse_loss(Q_expected, Q_targets)
@@ -129,7 +132,7 @@ class Agent():
         self.soft_update(self.critic_local, self.critic_target, self.tau)
         self.soft_update(self.actor_local, self.actor_target, self.tau)
 
-    def soft_update(self, local_model, target_model, self.tau):
+    def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
         θ_target = τ*θ_local + (1 - τ)*θ_target
 
@@ -140,7 +143,7 @@ class Agent():
             self.tau (float): interpolation parameter
         """
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
-            target_param.data.copy_(self.tau*local_param.data + (1.0-self.tau)*target_param.data)
+            target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
@@ -148,6 +151,7 @@ class OUNoise:
     def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
         self.mu = mu * np.ones(size)
+        self.size = size
         self.theta = theta
         self.sigma = sigma
         self.seed = random.seed(seed)
@@ -160,23 +164,24 @@ class OUNoise:
     def sample(self):
         """Update internal state and return it as a noise sample."""
         x = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.size)
+        #dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
         self.state = x + dx
         return self.state
 
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, self.buffer_size, self.batch_size, seed):
+    def __init__(self, action_size, buffer_size, batch_size, seed):
         """Initialize a ReplayBuffer object.
         Params
         ======
-            self.buffer_size (int): maximum size of buffer
-            self.batch_size (int): size of each training batch
+            buffer_size (int): maximum size of buffer
+            batch_size (int): size of each training batch
         """
         self.action_size = action_size
-        self.memory = deque(maxlen=self.buffer_size)  # internal memory (deque)
-        self.self.batch_size = self.batch_size
+        self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
+        self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
         self.seed = random.seed(seed)
 
@@ -187,7 +192,7 @@ class ReplayBuffer:
 
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
-        experiences = random.sample(self.memory, k=self.self.batch_size)
+        experiences = random.sample(self.memory, k=self.batch_size)
 
         states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
         actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).float().to(device)

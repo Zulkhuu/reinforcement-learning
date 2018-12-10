@@ -18,16 +18,16 @@ HYPERPARAMS = {
         'name':                 'DDPG',             # name
         'random_seed':          0,                  # random seed
         'buffer_size':          100000,             # replay buffer size
-        'batch_size':           64,                 # minibatch size
+        'batch_size':           128,                # minibatch size
         'update_every':         4,                  # network updating every update_interval steps
         'weight_decay':         0.0001,             # weight decay
         'lr_actor':             1e-4,               # learning rate for actor
-        'lr_critic':            3e-4,               # learning rate for critic
+        'lr_critic':            1e-4,               # learning rate for critic
         'tau':                  1e-3,               # for soft update of target parameters
         'gamma':                0.99,               # discount factor
 
         # Q network parameters
-        'state_size':           37,                 # state size
+        'state_size':           33,                 # state size
         'action_size':          4,                  # action size
         'fc1_units':            64,                 # Number of nodes in first hidden layer
         'fc2_units':            64,                 # Number of nodes in second hidden layer
