@@ -9,11 +9,11 @@ TRAINPARAMS = {
 }
 
 HYPERPARAMS = {
-    'DDPG':
+    'MADDPG':
     {
         # Agent parameters
         'name':                 'MADDPG',           # name
-        'number_of_agents'      2,                  # number of agents
+        'n_agents':             2,                  # number of agents
         'random_seed':          0,                  # random seed
         'buffer_size':          100000,             # replay buffer size
         'batch_size':           128,                # minibatch size
