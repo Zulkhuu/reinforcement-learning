@@ -79,14 +79,14 @@ class MADDPG:
                 q_next = agent.target_critic(target_critic_input)
 
             y= reward[:,agent_id].reshape(-1,1) +self.gamma*q_next * (1 - done[:,agent_id].reshape(-1,1))
-            print(y.shape)
-            print("Before:{}".format(action))
+            #print(y.shape)
+            #print("Before:{}".format(action))
             action = action.view(-1,4)
-            print("After:{}".format(action))
+            #print("After:{}".format(action))
             critic_input = torch.cat((state_full,action),dim=1).to(device)
             q = agent.critic(critic_input)
 
-            huber_loss = torch.nn.MSELoss()
+            huber_loss = torch.nn.SmoothL1Loss() #torch.nn.MSELoss()
             critic_loss = huber_loss(q,y.detach())
             critic_loss.backward()
             #torch.nn.utils.clip_grad_norm_(agent.critic.parameters(), 0.5)
@@ -118,7 +118,7 @@ class MADDPG:
             actor_loss.backward()
             agent.actor_optimizer.step()
 
-        self.update_targets()
+            self.update_targets()
 
     def update_targets(self):
         """soft update target networks"""
