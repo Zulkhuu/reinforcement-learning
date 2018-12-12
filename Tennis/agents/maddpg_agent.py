@@ -14,26 +14,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-BATCH_SIZE = 128        # minibatch size
-BUFFER_SIZE = int(1e6)  # replay buffer size
-GAMMA = 0.99            # discount factor
-LR_ACTOR = 1e-3         # learning rate of the actor
-LR_CRITIC = 1e-3        # learning rate of the critic
-TAU = 6e-2              # for soft update of target parameters
-WEIGHT_DECAY = 0        # L2 weight decay
-UPDATE_EVERY = 1        # time steps between network updates
-N_UPDATES = 1           # number of times training
-ADD_NOISE = True
-
 eps_start = 6           # Noise level start
-eps_end = 0             # Noise level end
+eps_end = 0.001         # Noise level end
 eps_decay = 250         # Number of episodes to decay over from start to end
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class MADDPG():
 
-    def __init__(self, state_size, action_size, num_agents, random_seed):
+    def __init__(self, params):
         """Initialize an Agent object.
 
         Params
@@ -43,42 +32,45 @@ class MADDPG():
             num_agents (int): number of agents
             random_seed (int): random seed
         """
-        self.agent0 = Agent(state_size, action_size, num_agents, random_seed)
-        self.agent1 = Agent(state_size, action_size, num_agents, random_seed)
+
+        self.state_size = params['state_size']
+        self.action_size = params['action_size']
+        self.num_agents = params['n_agents']
+        self.agents = [Agent(params), Agent(params)]
 
     def act(self, states, add_noise):
-        states = np.reshape(states, (1,48))
+        states = np.reshape(states, (1,self.state_size*self.num_agents))
         """Returns actions for given state as per current policy."""
-        action_0 = self.agent0.act(states, add_noise)
-        action_1 = self.agent1.act(states, add_noise)
+        action_0 = self.agents[0].act(states, add_noise)
+        action_1 = self.agents[1].act(states, add_noise)
         actions = np.concatenate((action_0, action_1), axis=0)
-        actions = np.reshape(actions, (1, 4))
+        actions = np.reshape(actions, (1, self.action_size*self.num_agents))
         return actions
 
     def step(self, states, actions, rewards, next_states, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
-        states = np.reshape(states, (1,48))
-        next_states = np.reshape(next_states, (1, 48))
+        states = np.reshape(states, (1,self.state_size*self.num_agents))
+        next_states = np.reshape(next_states, (1, self.state_size*self.num_agents))
 
-        self.agent0.step(states, actions, rewards[0], next_states, done, 0) # agent 1 learns
-        self.agent1.step(states, actions, rewards[1], next_states, done, 1) # agent 2 learns
+        self.agents[0].step(states, actions, rewards[0], next_states, done, 0) # agent 1 learns
+        self.agents[1].step(states, actions, rewards[1], next_states, done, 1) # agent 2 learns
 
     def load(self, filename):
-        self.agent0.actor_local.load_state_dict(torch.load('models/{}_actor0.pth'.format(filename)))
-        self.agent0.critic_local.load_state_dict(torch.load('models/{}_critic0.pth'.format(filename)))
-        self.agent1.actor_local.load_state_dict(torch.load('models/{}_actor1.pth'.format(filename)))
-        self.agent1.critic_local.load_state_dict(torch.load('models/{}_critic1.pth'.format(filename)))
+        self.agents[0].actor_local.load_state_dict(torch.load('models/{}_actor0.pth'.format(filename)))
+        self.agents[0].critic_local.load_state_dict(torch.load('models/{}_critic0.pth'.format(filename)))
+        self.agents[1].actor_local.load_state_dict(torch.load('models/{}_actor1.pth'.format(filename)))
+        self.agents[1].critic_local.load_state_dict(torch.load('models/{}_critic1.pth'.format(filename)))
 
     def save(self, filename):
-        torch.save(self.agent0.actor_local.state_dict(), 'models/{}_actor0.pth'.format(filename))
-        torch.save(self.agent0.critic_local.state_dict(), 'models/{}_critic0.pth'.format(filename))
-        torch.save(self.agent1.actor_local.state_dict(), 'models/{}_actor1.pth'.format(filename))
-        torch.save(self.agent1.critic_local.state_dict(), 'models/{}_critic1.pth'.format(filename))
+        torch.save(self.agents[0].actor_local.state_dict(), 'models/{}_actor0.pth'.format(filename))
+        torch.save(self.agents[0].critic_local.state_dict(), 'models/{}_critic0.pth'.format(filename))
+        torch.save(self.agents[1].actor_local.state_dict(), 'models/{}_actor1.pth'.format(filename))
+        torch.save(self.agents[1].critic_local.state_dict(), 'models/{}_critic1.pth'.format(filename))
 
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, num_agents, random_seed):
+    def __init__(self, params):
         """Initialize an Agent object.
 
         Params
@@ -88,6 +80,19 @@ class Agent():
             num_agents (int): number of agents
             random_seed (int): random seed
         """
+        state_size = int(params['state_size'])
+        action_size = int(params['action_size'])
+        num_agents = int(params['n_agents'])
+        random_seed = params['random_seed']
+
+        self.batch_size = params['batch_size']
+        self.buffer_size = params['buffer_size']
+        self.weight_decay = params['weight_decay']
+        self.lr_critic = params['lr_critic']
+        self.lr_actor = params['lr_actor']
+        self.gamma = params['gamma']
+        self.tau = params['tau']
+
         self.state_size = state_size
         self.action_size = action_size
         self.num_agents = num_agents
@@ -96,20 +101,20 @@ class Agent():
         self.t_step = 0
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_target = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
+        self.actor_local = Actor(state_size*num_agents, action_size, random_seed).to(device)
+        self.actor_target = Actor(state_size*num_agents, action_size, random_seed).to(device)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr_actor)
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_target = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
+        self.critic_local = Critic(state_size*num_agents, action_size*num_agents, random_seed).to(device)
+        self.critic_target = Critic(state_size*num_agents, action_size*num_agents, random_seed).to(device)
+        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr_critic, weight_decay=self.weight_decay)
 
         # Noise process
-        self.noise = OUNoise((num_agents, action_size), random_seed)
+        self.noise = OUNoise((1, action_size), random_seed)
 
         # Replay memory
-        self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
+        self.memory = ReplayBuffer(self.buffer_size, self.batch_size, random_seed)
 
     def step(self, state, action, reward, next_state, done, agent_id):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -118,16 +123,15 @@ class Agent():
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn, if enough samples are available in memory and at interval settings
-        if len(self.memory) > BATCH_SIZE:
-            if self.t_step % UPDATE_EVERY == 0:
-                for _ in range(N_UPDATES):
-                    experiences = self.memory.sample()
-                    self.learn(experiences, GAMMA, agent_id)
+        if len(self.memory) > self.batch_size:
+            if self.t_step % 1 == 0:
+                experiences = self.memory.sample()
+                self.learn(experiences, self.gamma, agent_id)
 
     def act(self, states, add_noise):
         """Returns actions for given state as per current policy."""
         states = torch.from_numpy(states).float().to(device)
-        actions = np.zeros((self.num_agents, self.action_size))
+        actions = np.zeros((1, self.action_size))
         self.actor_local.eval()
         with torch.no_grad():
             for agent_num, state in enumerate(states):
@@ -135,7 +139,8 @@ class Agent():
                 actions[agent_num, :] = action
         self.actor_local.train()
         if add_noise:
-            actions += self.eps * self.noise.sample()
+            #actions += self.eps * self.noise.sample()
+            actions += self.noise.sample()
         return np.clip(actions, -1, 1)
 
     def reset(self):
@@ -191,13 +196,11 @@ class Agent():
         self.actor_optimizer.step()
 
         # ----------------------- update target networks ----------------------- #
-        self.soft_update(self.critic_local, self.critic_target, TAU)
-        self.soft_update(self.actor_local, self.actor_target, TAU)
+        self.soft_update(self.critic_local, self.critic_target, self.tau)
+        self.soft_update(self.actor_local, self.actor_target, self.tau)
 
         # Update epsilon noise value
-        self.eps = self.eps - (1/eps_decay)
-        if self.eps < eps_end:
-            self.eps=eps_end
+        self.eps = max((self.eps - (1/eps_decay)), eps_end)
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
@@ -238,14 +241,13 @@ class OUNoise:
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, buffer_size, batch_size, seed):
+    def __init__(self, buffer_size, batch_size, seed):
         """Initialize a ReplayBuffer object.
         Params
         ======
             buffer_size (int): maximum size of buffer
             batch_size (int): size of each training batch
         """
-        self.action_size = action_size
         self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])

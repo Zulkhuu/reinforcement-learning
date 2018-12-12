@@ -44,10 +44,10 @@ HYPERPARAMS = {
             'random_seed':          0,                  # random seed
             'buffer_size':          1000000,            # replay buffer size
             'batch_size':           128,                # minibatch size
-            'weight_decay':         0.0001,             # weight decay
+            'weight_decay':         0,#0.0001,             # weight decay
             'lr_actor':             1e-3,               # learning rate for actor
             'lr_critic':            1e-3,               # learning rate for critic
-            'tau':                  1e-5,               # for soft update of target parameters
+            'tau':                  6e-2,               # for soft update of target parameters
             'gamma':                0.99,               # discount factor
 
             # Q network parameters
