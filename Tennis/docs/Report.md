@@ -8,6 +8,7 @@
 - [Introduction](#Introduction)
   * [Problem definition](#Problem-definition)
 - [Background](#Background)
+  * [MADDPG algorithm](#MADDPG-algorithm)
 - [Implementation](#Implementation)
 - [Hyperparameter tuning](#Hyperparameter-tuning)
 - [Result](#Result)
@@ -19,9 +20,8 @@
 
 For this project, you will work with the [Tennis](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#tennis) environment.
 
-
 <p align="center">
-  ![Trained Agent][image1]
+  <img src="images/trained_agent.gif" height="300px">
 </p>
 
 ## Problem definition
@@ -40,7 +40,28 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 # Background
 
+Most straightforward approach to learning in multi-agent environment is to train independently learning agents. However both value based and policy gradient methods perform bad in such situations. One issue is that agent’s policy changes during training, resulting in a non-stationary environment and preventing the naïve application of experience replay according to the [Multi Agent DDPG paper](https://arxiv.org/pdf/1706.02275.pdf).
+
+## MADDPG algorithm
+
+Multi Agent Deep Deterministic Policy Gradient(MADDPG) algorithm addresses those challenges faced by multi-agent learning by adapting DDPG algorithm to use in multi-agent setting.
+Novelty of MADDPG algorithm lies in its centralized training and decentralized execution paradigm. As shown in below image, critic of each agent observes the environment fully, while actor acts based on only its own observation.
+
+<p align="center">
+  <img src="images/maddpg_diagram.gif" height="300px">
+</p>
+
+Another difference from using independent agents, is that MADDPG uses shared replay buffer between agents which holds full environment states, and each agents actions and rewards. Below image illustrates full MADDPG algorithm:
+
+<p align="center">
+  <img src="images/maddpg_algorithm.png" height="400px">
+</p>
+
 # Implementation
+
+Implementation uses Reacher project's DDPG Implementation as a baseline and modifies it to align with MADDPG algorithm.
+
+Full implementation of MADDPG agent can be found in [maddpg_agent.py]() file.
 
 # Hyperparameter tuning
 
