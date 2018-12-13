@@ -56,7 +56,7 @@ Another difference from using independent agents, is that MADDPG uses shared rep
 Implementation uses [Reacher project](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Reacher)'s DDPG Implementation as a baseline. Main changes done to regular DDPG agent implementation are:
 - Agents use shared common replay buffer
 - Each agent's critic receives full state observation for evaluating the state value while actor uses only its own observation for choosing the action.
-- Improve exploration early in the beginning by increasing the Ornstein-Uhlenbeck noise's amplitude and decay it to zero as training continues.
+- Improve exploration early in the beginning by increasing the action space noise's amplitude and decay it to zero as training continues.
 
 Full implementation of MADDPG agent can be found in [maddpg_agent.py](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Tennis/agents/maddpg_agent.py) file.
 
