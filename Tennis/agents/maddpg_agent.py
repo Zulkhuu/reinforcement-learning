@@ -35,11 +35,11 @@ class MADDPG():
         self.agents = [Agent(params), Agent(params)]
 
     def act(self, states, add_noise):
-        states = np.reshape(states, (1,self.state_size*self.num_agents))
+        #states = np.reshape(states, (1,self.state_size*self.num_agents))
         """Returns actions for given state as per current policy."""
         actions = []
         for idx, agent in enumerate(self.agents):
-            action = agent.act(states, add_noise)
+            action = agent.act(states[idx], add_noise)
             actions.append(action)
         actions = np.reshape(actions, (1, self.action_size*self.num_agents))
         return actions
@@ -55,7 +55,7 @@ class MADDPG():
     def load(self, filename):
         for idx, agent in enumerate(self.agents):
             agent.actor_local.load_state_dict(torch.load('models/{}_actor{}.pth'.format(filename, idx)))
-            agent.critic_local.load_state_dict(torch.load('models/{}_critic{{}.pth'.format(filename, idx)))
+            agent.critic_local.load_state_dict(torch.load('models/{}_critic{}.pth'.format(filename, idx)))
 
     def save(self, filename):
         for idx, agent in enumerate(self.agents):
@@ -96,8 +96,8 @@ class Agent():
         self.t_step = 0
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size*num_agents, action_size, random_seed).to(device)
-        self.actor_target = Actor(state_size*num_agents, action_size, random_seed).to(device)
+        self.actor_local = Actor(state_size, action_size, random_seed).to(device)
+        self.actor_target = Actor(state_size, action_size, random_seed).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr_actor)
 
         # Critic Network (w/ Target Network)
@@ -106,7 +106,7 @@ class Agent():
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr_critic, weight_decay=self.weight_decay)
 
         # Noise process
-        self.noise = OUNoise((1, action_size), random_seed)
+        self.noise = OUNoise(action_size, random_seed)
 
         # Replay memory
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size, random_seed)
@@ -126,17 +126,18 @@ class Agent():
     def act(self, states, add_noise):
         """Returns actions for given state as per current policy."""
         states = torch.from_numpy(states).float().to(device)
-        actions = np.zeros((1, self.action_size))
+        #actions = np.zeros((1, self.action_size))
         self.actor_local.eval()
         with torch.no_grad():
-            for agent_num, state in enumerate(states):
-                action = self.actor_local(state).cpu().data.numpy()
-                actions[agent_num, :] = action
+            action = self.actor_local(states).cpu().data.numpy()
+            #for agent_num, state in enumerate(states):
+            #    actions[agent_num, :] = action
         self.actor_local.train()
         if add_noise:
             #actions += self.eps * self.noise.sample()
-            actions += self.noise.sample()
-        return np.clip(actions, -1, 1)
+            #actions += self.noise.sample()
+            action += self.noise.sample()
+        return np.clip(action, -1, 1)
 
     def reset(self):
         self.noise.reset()
@@ -156,12 +157,13 @@ class Agent():
 
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
-        actions_next = self.actor_target(next_states)
 
         if agent_id == 0:
-            actions_next = torch.cat((actions_next, actions[:,2:]), dim=1)
+            actions_next = self.actor_target(next_states[:,:self.state_size])
+            actions_next = torch.cat((actions_next, actions[:,self.action_size:]), dim=1)
         else:
-            actions_next = torch.cat((actions[:,:2], actions_next), dim=1)
+            actions_next = self.actor_target(next_states[:,self.state_size:])
+            actions_next = torch.cat((actions[:,:self.action_size], actions_next), dim=1)
 
 
         Q_targets_next = self.critic_target(next_states, actions_next)
@@ -177,12 +179,13 @@ class Agent():
 
         # ---------------------------- update actor ---------------------------- #
         # Compute actor loss
-        actions_pred = self.actor_local(states)
 
         if agent_id == 0:
-            actions_pred = torch.cat((actions_pred, actions[:,2:]), dim=1)
+            actions_pred = self.actor_local(states[:,:self.state_size])
+            actions_pred = torch.cat((actions_pred, actions[:,self.action_size:]), dim=1)
         else:
-            actions_pred = torch.cat((actions[:,:2], actions_pred), dim=1)
+            actions_pred = self.actor_local(states[:,self.state_size:])
+            actions_pred = torch.cat((actions[:,:self.action_size], actions_pred), dim=1)
 
         actor_loss = -self.critic_local(states, actions_pred).mean()
         # Minimize the loss
