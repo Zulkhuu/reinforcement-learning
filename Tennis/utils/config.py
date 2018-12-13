@@ -32,9 +32,9 @@ HYPERPARAMS = {
     {
         # Environment parameters
         'env_name':             'Tennis',           # environment name
-        'solve_score':          0.03,                # score to solve environment
+        'solve_score':          0.5,                # score to solve environment
         'scores_window_size':   100,                # moving average window size
-        'n_episodes':           2000,               # maximum number of episodes
+        'n_episodes':           3000,               # maximum number of episodes
 
         'agent':
         {
@@ -49,6 +49,9 @@ HYPERPARAMS = {
             'lr_critic':            1e-3,               # learning rate for critic
             'tau':                  6e-2,               # for soft update of target parameters
             'gamma':                0.99,               # discount factor
+            'eb_duration':          400,                # exploratory boost duration
+            'eb_start':             5,                  # exploratory boost startin value
+            'eb_end':               0,                  # exploratory boost end value
 
             # Q network parameters
             'state_size':           24,                 # state size

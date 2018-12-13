@@ -45,6 +45,8 @@ class DDPG:
         self.actor_optimizer = Adam(self.actor.parameters(), lr=lr_actor)
         self.critic_optimizer = Adam(self.critic.parameters(), lr=lr_critic, weight_decay=1.e-5)
 
+    def reset(self):
+        self.noise.reset()
 
     def act(self, obs, noise=0.5):
         obs = torch.from_numpy(obs).float().to(device)
@@ -54,7 +56,7 @@ class DDPG:
 
     def target_act(self, obs, noise=0.5):
         obs = obs.to(device)
-        action = self.target_actor(obs) + noise*torch.Tensor(self.noise.sample())
+        action = self.target_actor(obs) + noise*torch.Tensor(self.noise.sample()).cuda()
         return action
 
     # https://github.com/ikostrikov/pytorch-ddpg-naf/blob/master/ddpg.py#L11

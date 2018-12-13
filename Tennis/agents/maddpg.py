@@ -28,6 +28,10 @@ class MADDPG:
 
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size, params['random_seed'])
 
+    def reset(self):
+        for agent in self.agents:
+            agent.reset()
+            
     def act(self, obs_all_agents, noise=0.0001):
         """get actions from all agents in the MADDPG object"""
         actions = [agent.act(obs, noise) for agent, obs in zip(self.agents, obs_all_agents)]

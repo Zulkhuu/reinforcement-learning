@@ -23,7 +23,7 @@ class Network(nn.Module):
         self.fc3 = nn.Linear(hidden_out_dim,output_dim)
         self.nonlin = f.leaky_relu
         self.actor = actor
-        #self.reset_parameters()
+        self.reset_parameters()
 
     def reset_parameters(self):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))

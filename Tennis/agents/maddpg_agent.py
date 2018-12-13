@@ -34,7 +34,11 @@ class MADDPG():
         self.num_agents = params['n_agents']
         self.agents = [Agent(params), Agent(params)]
 
-    def act(self, states, add_noise):
+    def reset(self):
+        for agent in self.agents:
+            agent.reset()
+
+    def act(self, states, add_noise=True):
         #states = np.reshape(states, (1,self.state_size*self.num_agents))
         """Returns actions for given state as per current policy."""
         actions = []
@@ -87,12 +91,13 @@ class Agent():
         self.lr_actor = params['lr_actor']
         self.gamma = params['gamma']
         self.tau = params['tau']
+        self.eb_duration = params['eb_duration']
+        self.eb_end = params['eb_end']
 
         self.state_size = state_size
         self.action_size = action_size
         self.num_agents = num_agents
         self.seed = random.seed(random_seed)
-        #self.eps = eps_start
         self.t_step = 0
 
         # Actor Network (w/ Target Network)
@@ -106,7 +111,7 @@ class Agent():
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr_critic, weight_decay=self.weight_decay)
 
         # Noise process
-        self.noise = OUNoise(action_size, random_seed)
+        self.noise = OUNoise(action_size, params['eb_start'])
 
         # Replay memory
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size, random_seed)
@@ -114,6 +119,7 @@ class Agent():
     def step(self, state, action, reward, next_state, done, agent_id):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         self.t_step += 1
+        self.noise.scale = max((self.noise.scale - 1.0/self.eb_duration), self.eb_end)
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
 
@@ -123,7 +129,7 @@ class Agent():
                 experiences = self.memory.sample()
                 self.learn(experiences, self.gamma, agent_id)
 
-    def act(self, states, add_noise):
+    def act(self, states, add_noise=True):
         """Returns actions for given state as per current policy."""
         states = torch.from_numpy(states).float().to(device)
         #actions = np.zeros((1, self.action_size))
@@ -197,9 +203,6 @@ class Agent():
         self.soft_update(self.critic_local, self.critic_target, self.tau)
         self.soft_update(self.actor_local, self.actor_target, self.tau)
 
-        # Update epsilon noise value
-        #self.eps = max((self.eps - (1/eps_decay)), eps_end)
-
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
         θ_target = τ*θ_local + (1 - τ)*θ_target
@@ -216,12 +219,12 @@ class Agent():
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, size, seed, mu=0.0, theta=0.15, sigma=0.2):
+    def __init__(self, size, scale=1.0, mu=0.0, theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
         self.mu = mu * np.ones(size)
+        self.scale = scale
         self.theta = theta
         self.sigma = sigma
-        self.seed = random.seed(seed)
         self.size = size
         self.reset()
 
@@ -234,7 +237,7 @@ class OUNoise:
         x = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.size)
         self.state = x + dx
-        return self.state
+        return self.scale*self.state
 
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
