@@ -132,6 +132,8 @@ def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.06, noise_start=5, noise_d
             for idx, agent_ in enumerate(agent.agents):
                 torch.save(agent_.actor_local.state_dict(), '../models/{}_actor{}.pth'.format(model_filename, idx))
                 torch.save(agent_.critic_local.state_dict(), '../models/{}_critic{}.pth'.format(model_filename, idx))
+            df = pd.DataFrame(scores,columns=['scores','average_scores'])
+            df.to_csv('../scores/{:s}.csv'.format(model_filename))
             break
 
     # Save score
@@ -141,6 +143,10 @@ def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.06, noise_start=5, noise_d
     return i_episode-100
 
 # How many times to try same parameter configurations
+'''
+for idx in range(10):
+    train_maddpg()
+'''
 n_try = 3
 
 # Learning rate
