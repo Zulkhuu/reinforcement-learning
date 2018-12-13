@@ -103,15 +103,13 @@ def plot_learning_curve(filename):
 
     df = pd.read_csv(csv_filename, index_col = 0)
     plt.figure(figsize=(10,5))
-    #plt.axhline(13, color='red', lw=1, alpha=0.3) # Draw goal line
+    plt.axhline(0.5, color='red', lw=1, alpha=0.3) # Draw goal line
     plt.plot( df.index, 'scores', data=df, color='lime', lw=1, label="score per episode", alpha=0.4)
     plt.plot( df.index, 'average_scores', data=df, color='green', lw=2, label="average score")
     # Set labels and legends
     plt.xlabel('Episode')
     plt.xlim(0, len(df.index))
-    plt.xticks(50*np.arange(int(len(df.index)/50+1)))
     plt.ylabel('Score')
-    plt.yticks(3*np.arange(8))
     plt.title(filename)
     plt.grid(True, alpha=0.3, linestyle='--')
     plt.legend()
@@ -131,7 +129,7 @@ def plot_learning_curve(filename):
 #plot_lr_critic()
 
 # Plot batch sizes
-plot_batch_size()
+#plot_batch_size()
 
 # Plot learning curve of particular training
-#plot_learning_curve('DDPG_lra1E-04_lrc1E-04_batch128_fc:256:128_solved256')
+plot_learning_curve('MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart5.0_nt400_solved540')

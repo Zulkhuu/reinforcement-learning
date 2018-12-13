@@ -1,12 +1,8 @@
-[//]: # (Image References)
-
-[image1]: https://user-images.githubusercontent.com/10624937/42135623-e770e354-7d12-11e8-998d-29fc74429ca2.gif "Trained Agent"
-
 # Project: Tennis
 
 ## Contents
 - [Introduction](#Introduction)
-  * [Problem definition](#Problem-definition)
+  * [Environment](#Environment)
 - [Background](#Background)
   * [MADDPG algorithm](#MADDPG-algorithm)
 - [Implementation](#Implementation)
@@ -17,15 +13,13 @@
 
 # Introduction
 
-
-For this project, you will work with the [Tennis](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#tennis) environment.
+In this project, MADDPG(Multi Agent Deep Deterministic Policy Gradient) agent was implemented to solve environment similar to Unity's [Tennis](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#tennis) environment.
 
 <p align="center">
   <img src="images/trained_agent.gif" height="300px">
 </p>
 
-## Problem definition
-
+## Environment
 
 In this environment, two agents control rackets to bounce a ball over a net. If an agent hits the ball over the net, it receives a reward of +0.1.  If an agent lets a ball hit the ground or hits the ball out of bounds, it receives a reward of -0.01.  Thus, the goal of each agent is to keep the ball in play.
 
@@ -59,18 +53,50 @@ Another difference from using independent agents, is that MADDPG uses shared rep
 
 # Implementation
 
-Implementation uses Reacher project's DDPG Implementation as a baseline and modifies it to align with MADDPG algorithm.
+Implementation uses [Reacher project](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Reacher)'s DDPG Implementation as a baseline. Main changes done to regular DDPG agent implementation are:
+- Agents use shared common replay buffer
+- Each agent's critic receives full state observation for evaluating the state value while actor uses only its own observation for choosing the action.
+- Improve exploration early in the beginning by increasing the Ornstein-Uhlenbeck noise's amplitude and decay it to zero as training continues.
 
-Full implementation of MADDPG agent can be found in [maddpg_agent.py]() file.
+Full implementation of MADDPG agent can be found in [maddpg_agent.py](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Tennis/agents/maddpg_agent.py) file.
 
 # Hyperparameter tuning
 
 # Result
 
+Based on above observation, following hyperparameter values were chosen as optimal value.
+- Learning rate for actor networks 1E-04
+- Learning rate for critic networks 1E-04
+- Soft target update tau parameter 0.06
+- OU noise initial scale 5
+- OU noise decay 0.999
+- Batch size 128
+
+Training agent with above hyperparameter values, solves the environment in 640 episodes. Each episode's score and average score during training is shown below:
+
+<p align="center">
+    <img src="plots/MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart5.0_nt400_solved540.png" height="300px">
+</p>
+
+Agent was close to solving the environment around episode 440~450, but it diverged and stabilized for next 200 episodes and started improving again around episode 600 and finally solved the environment after 640 episodes.
+
+It seems very easy to diverge once policy becomes bad. It is hard to recover when divergence happens later in the training, since OU noise's scale is already decayed.
+
+When checking successfully trained agents, it looks agents learned a policy to do [defensive backspin chop](http://www.larrytt.com/ttsts/Step%2010%20-%20Chopping%20-%20Backspin%20Defense.pdf) and then move close to the net.
+Trained agents are shown below(Also shown on top of the report):
+
+<p align="center">
+  <img src="images/trained_agent.gif" height="300px">
+</p>
+
+
 # Future work
+
+- Use MADDPG agent implementation to solve [Unity's Soccer Two environment](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#soccer-twos).
 
 # References
 
+- [Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/pdf/1706.02275.pdf)
 - [Continuous control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf)
 - [Better Exploration with Parameter Noise](https://blog.openai.com/better-exploration-with-parameter-noise/)
 - [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html)
