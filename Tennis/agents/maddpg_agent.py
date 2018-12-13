@@ -14,9 +14,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-eps_start = 6           # Noise level start
-eps_end = 0.001         # Noise level end
-eps_decay = 250         # Number of episodes to decay over from start to end
+#eps_start = 6           # Noise level start
+#eps_end = 0.001         # Noise level end
+#eps_decay = 250         # Number of episodes to decay over from start to end
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -41,9 +41,13 @@ class MADDPG():
     def act(self, states, add_noise):
         states = np.reshape(states, (1,self.state_size*self.num_agents))
         """Returns actions for given state as per current policy."""
-        action_0 = self.agents[0].act(states, add_noise)
-        action_1 = self.agents[1].act(states, add_noise)
-        actions = np.concatenate((action_0, action_1), axis=0)
+        actions = []
+        for idx, agent in enumerate(self.agents):
+            action = agent.act(states, add_noise)
+            actions.append(action)
+        #action_0 = self.agents[0].act(states, add_noise)
+        #action_1 = self.agents[1].act(states, add_noise)
+        #actions = np.concatenate((action_0, action_1), axis=0)
         actions = np.reshape(actions, (1, self.action_size*self.num_agents))
         return actions
 
@@ -52,20 +56,29 @@ class MADDPG():
         states = np.reshape(states, (1,self.state_size*self.num_agents))
         next_states = np.reshape(next_states, (1, self.state_size*self.num_agents))
 
-        self.agents[0].step(states, actions, rewards[0], next_states, done, 0) # agent 1 learns
-        self.agents[1].step(states, actions, rewards[1], next_states, done, 1) # agent 2 learns
+        for idx, agent in enumerate(self.agents):
+            agent.step(states, actions, rewards[idx], next_states, done, idx)
+
+        #self.agents[0].step(states, actions, rewards[0], next_states, done, 0)
+        #self.agents[1].step(states, actions, rewards[1], next_states, done, 1)
 
     def load(self, filename):
-        self.agents[0].actor_local.load_state_dict(torch.load('models/{}_actor0.pth'.format(filename)))
-        self.agents[0].critic_local.load_state_dict(torch.load('models/{}_critic0.pth'.format(filename)))
-        self.agents[1].actor_local.load_state_dict(torch.load('models/{}_actor1.pth'.format(filename)))
-        self.agents[1].critic_local.load_state_dict(torch.load('models/{}_critic1.pth'.format(filename)))
+        for idx, agent in enumerate(self.agents):
+            agent.actor_local.load_state_dict(torch.load('models/{}_actor{}.pth'.format(filename, idx)))
+            agent.critic_local.load_state_dict(torch.load('models/{}_critic{{}.pth'.format(filename, idx)))
+        #self.agents[0].actor_local.load_state_dict(torch.load('models/{}_actor0.pth'.format(filename)))
+        #self.agents[0].critic_local.load_state_dict(torch.load('models/{}_critic0.pth'.format(filename)))
+        #self.agents[1].actor_local.load_state_dict(torch.load('models/{}_actor1.pth'.format(filename)))
+        #self.agents[1].critic_local.load_state_dict(torch.load('models/{}_critic1.pth'.format(filename)))
 
     def save(self, filename):
-        torch.save(self.agents[0].actor_local.state_dict(), 'models/{}_actor0.pth'.format(filename))
-        torch.save(self.agents[0].critic_local.state_dict(), 'models/{}_critic0.pth'.format(filename))
-        torch.save(self.agents[1].actor_local.state_dict(), 'models/{}_actor1.pth'.format(filename))
-        torch.save(self.agents[1].critic_local.state_dict(), 'models/{}_critic1.pth'.format(filename))
+        for idx, agent in enumerate(self.agents):
+            torch.save(agent.actor_local.state_dict(), 'models/{}_actor{}.pth'.format(filename, idx))
+            torch.save(agent.critic_local.state_dict(), 'models/{}_critic{}.pth'.format(filename, idx))
+        #torch.save(self.agents[0].actor_local.state_dict(), 'models/{}_actor0.pth'.format(filename))
+        #torch.save(self.agents[0].critic_local.state_dict(), 'models/{}_critic0.pth'.format(filename))
+        #torch.save(self.agents[1].actor_local.state_dict(), 'models/{}_actor1.pth'.format(filename))
+        #torch.save(self.agents[1].critic_local.state_dict(), 'models/{}_critic1.pth'.format(filename))
 
 class Agent():
     """Interacts with and learns from the environment."""
@@ -97,7 +110,7 @@ class Agent():
         self.action_size = action_size
         self.num_agents = num_agents
         self.seed = random.seed(random_seed)
-        self.eps = eps_start
+        #self.eps = eps_start
         self.t_step = 0
 
         # Actor Network (w/ Target Network)
@@ -200,7 +213,7 @@ class Agent():
         self.soft_update(self.actor_local, self.actor_target, self.tau)
 
         # Update epsilon noise value
-        self.eps = max((self.eps - (1/eps_decay)), eps_end)
+        #self.eps = max((self.eps - (1/eps_decay)), eps_end)
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
@@ -218,7 +231,7 @@ class Agent():
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, size, seed, mu=0.0, theta=0.13, sigma=0.2):
+    def __init__(self, size, seed, mu=0.0, theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
         self.mu = mu * np.ones(size)
         self.theta = theta

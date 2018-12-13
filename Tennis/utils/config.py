@@ -32,7 +32,7 @@ HYPERPARAMS = {
     {
         # Environment parameters
         'env_name':             'Tennis',           # environment name
-        'solve_score':          0.1,                # score to solve environment
+        'solve_score':          0.03,                # score to solve environment
         'scores_window_size':   100,                # moving average window size
         'n_episodes':           2000,               # maximum number of episodes
 
