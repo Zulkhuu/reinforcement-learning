@@ -19,20 +19,23 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class MADDPG():
 
     def __init__(self, params):
-        """Initialize an Agent object.
+        """Initialize an DDPG object"""
 
-        Params
-        ======
-            state_size (int): dimension of each state
-            action_size (int): dimension of each action
-            num_agents (int): number of agents
-            random_seed (int): random seed
-        """
-
+        self.batch_size = params['batch_size']
+        self.buffer_size = params['buffer_size']
         self.state_size = params['state_size']
         self.action_size = params['action_size']
         self.num_agents = params['n_agents']
-        self.agents = [Agent(params), Agent(params)]
+        self.random_seed = params['random_seed']
+
+        self.t_step = 0
+        #self.agents = [DDPG(params), DDPG(params)]
+        self.agents = []
+        for i in range(self.num_agents):
+            self.agents.append(DDPG(params))
+
+        # Replay memory
+        self.memory = ReplayBuffer(self.buffer_size, self.batch_size, self.random_seed)
 
     def reset(self):
         for agent in self.agents:
@@ -48,13 +51,25 @@ class MADDPG():
         actions = np.reshape(actions, (1, self.action_size*self.num_agents))
         return actions
 
-    def step(self, states, actions, rewards, next_states, done):
+    def step(self, states, actions, rewards, next_states, dones):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         states = np.reshape(states, (1,self.state_size*self.num_agents))
         next_states = np.reshape(next_states, (1, self.state_size*self.num_agents))
+        rewards = np.reshape(rewards, (1, self.num_agents))
 
-        for idx, agent in enumerate(self.agents):
-            agent.step(states, actions, rewards[idx], next_states, done, idx)
+        self.t_step += 1
+        # Save experience / reward
+        self.memory.add(states, actions, rewards, next_states, dones)
+
+        for agent in self.agents:
+            agent.noise.scale = max(agent.noise.scale*agent.noise_decay, agent.noise_end)
+
+        # Learn, if enough samples are available in memory and at interval settings
+        if len(self.memory) > self.batch_size:
+            if self.t_step % 1 == 0:
+                for idx, agent in enumerate(self.agents):
+                    experiences = self.memory.sample()
+                    agent.learn(experiences, agent.gamma, idx)
 
     def load(self, filename):
         for idx, agent in enumerate(self.agents):
@@ -66,69 +81,39 @@ class MADDPG():
             torch.save(agent.actor_local.state_dict(), 'models/{}_actor{}.pth'.format(filename, idx))
             torch.save(agent.critic_local.state_dict(), 'models/{}_critic{}.pth'.format(filename, idx))
 
-class Agent():
+class DDPG():
     """Interacts with and learns from the environment."""
 
     def __init__(self, params):
-        """Initialize an Agent object.
+        """Initialize an DDPG object"""
 
-        Params
-        ======
-            state_size (int): dimension of each state
-            action_size (int): dimension of each action
-            num_agents (int): number of agents
-            random_seed (int): random seed
-        """
-        state_size = int(params['state_size'])
-        action_size = int(params['action_size'])
-        num_agents = int(params['n_agents'])
-        random_seed = params['random_seed']
+        self.state_size = int(params['state_size'])
+        self.action_size = int(params['action_size'])
+        self.num_agents = int(params['n_agents'])
+        self.random_seed = params['random_seed']
 
-        self.batch_size = params['batch_size']
-        self.buffer_size = params['buffer_size']
         self.weight_decay = params['weight_decay']
         self.lr_critic = params['lr_critic']
         self.lr_actor = params['lr_actor']
         self.gamma = params['gamma']
         self.tau = params['tau']
-        self.eb_duration = params['eb_duration']
-        self.eb_end = params['eb_end']
-
-        self.state_size = state_size
-        self.action_size = action_size
-        self.num_agents = num_agents
-        self.seed = random.seed(random_seed)
-        self.t_step = 0
+        self.noise_duration = params['noise_duration']
+        self.noise_decay = params['noise_decay']
+        self.noise_end = params['noise_end']
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_target = Actor(state_size, action_size, random_seed).to(device)
+        self.actor_local = Actor(self.state_size, self.action_size, self.random_seed).to(device)
+        self.actor_target = Actor(self.state_size, self.action_size, self.random_seed).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr_actor)
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size*num_agents, action_size*num_agents, random_seed).to(device)
-        self.critic_target = Critic(state_size*num_agents, action_size*num_agents, random_seed).to(device)
+        self.critic_local = Critic(self.state_size*self.num_agents, self.action_size*self.num_agents, self.random_seed).to(device)
+        self.critic_target = Critic(self.state_size*self.num_agents, self.action_size*self.num_agents, self.random_seed).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr_critic, weight_decay=self.weight_decay)
 
         # Noise process
-        self.noise = OUNoise(action_size, params['eb_start'])
+        self.noise = OUNoise(self.action_size, params['noise_start'])
 
-        # Replay memory
-        self.memory = ReplayBuffer(self.buffer_size, self.batch_size, random_seed)
-
-    def step(self, state, action, reward, next_state, done, agent_id):
-        """Save experience in replay memory, and use random sample from buffer to learn."""
-        self.t_step += 1
-        self.noise.scale = max(self.noise.scale - 1/self.eb_duration, self.eb_end)
-        #print("Noise scale:{}".format(self.noise.scale))
-        # Save experience / reward
-        self.memory.add(state, action, reward, next_state, done)
-
-        # Learn, if enough samples are available in memory and at interval settings
-        if len(self.memory) > self.batch_size:
-            if self.t_step % 1 == 0:
-                experiences = self.memory.sample()
-                self.learn(experiences, self.gamma, agent_id)
 
     def act(self, states, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -145,17 +130,9 @@ class Agent():
         self.noise.reset()
 
     def learn(self, experiences, gamma, agent_id):
-        """Update policy and value parameters using given batch of experience tuples.
-        Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
-        where:
-            actor_target(state) -> action
-            critic_target(state, action) -> Q-value
-        Params
-        ======
-            experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
-            gamma (float): discount factor
-        """
+        """Update policy and value parameters using given batch of experience tuples"""
         states, actions, rewards, next_states, dones = experiences
+
 
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
@@ -163,9 +140,11 @@ class Agent():
         if agent_id == 0:
             actions_next = self.actor_target(next_states[:,:self.state_size])
             actions_next = torch.cat((actions_next, actions[:,self.action_size:]), dim=1)
+            rewards = rewards[:,:1]
         else:
             actions_next = self.actor_target(next_states[:,self.state_size:])
             actions_next = torch.cat((actions[:,:self.action_size], actions_next), dim=1)
+            rewards = rewards[:,1:]
 
 
         Q_targets_next = self.critic_target(next_states, actions_next)
@@ -232,19 +211,14 @@ class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
     def __init__(self, buffer_size, batch_size, seed):
-        """Initialize a ReplayBuffer object.
-        Params
-        ======
-            buffer_size (int): maximum size of buffer
-            batch_size (int): size of each training batch
-        """
+        """Initialize a ReplayBuffer object"""
         self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
         self.seed = random.seed(seed)
 
     def add(self, state, action, reward, next_state, done):
-        """Add a new experience to memory."""
+        """Add a new experience to memory"""
         e = self.experience(state, action, reward, next_state, done)
         self.memory.append(e)
 

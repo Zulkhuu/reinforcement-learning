@@ -49,9 +49,10 @@ HYPERPARAMS = {
             'lr_critic':            1e-3,               # learning rate for critic
             'tau':                  6e-2,               # for soft update of target parameters
             'gamma':                0.99,               # discount factor
-            'eb_duration':          400,                # exploratory boost duration
-            'eb_start':             5,                  # exploratory boost startin value
-            'eb_end':               0,                  # exploratory boost end value
+            'noise_duration':       400,                # exploratory boost duration
+            'noise_decay':          0.999,              # exploratory boost decay
+            'noise_start':          5,                  # exploratory boost startin value
+            'noise_end':            0,                  # exploratory boost end value
 
             # Q network parameters
             'state_size':           24,                 # state size
