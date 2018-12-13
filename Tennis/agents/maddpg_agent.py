@@ -119,7 +119,8 @@ class Agent():
     def step(self, state, action, reward, next_state, done, agent_id):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         self.t_step += 1
-        self.noise.scale = max((self.noise.scale - 1.0/self.eb_duration), self.eb_end)
+        self.noise.scale = max(self.noise.scale - 1/self.eb_duration, self.eb_end)
+        #print("Noise scale:{}".format(self.noise.scale))
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
 
@@ -132,16 +133,11 @@ class Agent():
     def act(self, states, add_noise=True):
         """Returns actions for given state as per current policy."""
         states = torch.from_numpy(states).float().to(device)
-        #actions = np.zeros((1, self.action_size))
         self.actor_local.eval()
         with torch.no_grad():
             action = self.actor_local(states).cpu().data.numpy()
-            #for agent_num, state in enumerate(states):
-            #    actions[agent_num, :] = action
         self.actor_local.train()
         if add_noise:
-            #actions += self.eps * self.noise.sample()
-            #actions += self.noise.sample()
             action += self.noise.sample()
         return np.clip(action, -1, 1)
 
@@ -204,14 +200,7 @@ class Agent():
         self.soft_update(self.actor_local, self.actor_target, self.tau)
 
     def soft_update(self, local_model, target_model, tau):
-        """Soft update model parameters.
-        θ_target = τ*θ_local + (1 - τ)*θ_target
-        Params
-        ======
-            local_model: PyTorch model (weights will be copied from)
-            target_model: PyTorch model (weights will be copied to)
-            tau (float): interpolation parameter
-        """
+        """Soft update model parameters"""
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 

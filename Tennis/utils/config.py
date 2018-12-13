@@ -34,7 +34,7 @@ HYPERPARAMS = {
         'env_name':             'Tennis',           # environment name
         'solve_score':          0.5,                # score to solve environment
         'scores_window_size':   100,                # moving average window size
-        'n_episodes':           3000,               # maximum number of episodes
+        'n_episodes':           2000,               # maximum number of episodes
 
         'agent':
         {
