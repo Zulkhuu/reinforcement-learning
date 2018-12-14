@@ -189,7 +189,7 @@ def plot_learning_curve(filename):
 #plot_noise_scale()
 
 # Plot neural network size
-plot_noise_decay()
+#plot_noise_decay()
 
 # Plot learning curve of particular training
-#plot_learning_curve('MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart5.0_nt400_solved540')
+plot_learning_curve('MADDPG_lra1E-03_lrc1E-03_tau1E-01_nstart7.0_ndecay0.999_solved369')
