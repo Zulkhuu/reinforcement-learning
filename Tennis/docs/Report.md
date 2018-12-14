@@ -79,7 +79,7 @@ Detailed implementation of the hyperparameter tuning can be found in [hyperparam
 Same learning rates were used for both actor and critic networks same as Reacher project. Result of trying multiple different learning rate is shown in below graph:
 
 <p align="center">
-  <img src="plots/learning_rates.png" height="400px">
+  <img src="plots/learning_rates.png" height="350px">
 </p>
 
 It looks like learning rate of 0.001 seems to be optimal value. It resulted much higher scores than smaller or larger learning rate values and solved the environment once in around 500 episodes.
@@ -89,7 +89,7 @@ It looks like learning rate of 0.001 seems to be optimal value. It resulted much
 Trying different values of tau resulted in below graph:
 
 <p align="center">
-  <img src="plots/tau.png" height="400px">
+  <img src="plots/tau.png" height="350px">
 </p>
 
 It looks like larger value of tau resulted in better performance which indicates that target network needs to be updated much faster than previous Reacher environment.
@@ -99,7 +99,7 @@ It looks like larger value of tau resulted in better performance which indicates
 Trying different exploration noise scale resulted in below graph:
 
 <p align="center">
-  <img src="plots/noise_scale.png" height="400px">
+  <img src="plots/noise_scale.png" height="350px">
 </p>
 
 Noise scale of 7 seems to be optimal value that it resulted in solving environment 3 times out of 3 run.
@@ -109,7 +109,7 @@ Noise scale of 7 seems to be optimal value that it resulted in solving environme
 Trying different exploration noise decay value resulted in below graph:
 
 <p align="center">
-  <img src="plots/noise_decay.png" height="400px">
+  <img src="plots/noise_decay.png" height="350px">
 </p>
 
 Larger values of 0.999 and 0.996 seems to be encouraging agent to explore more and find good policy.
@@ -126,7 +126,7 @@ Based on above observation, following hyperparameter values were chosen as optim
 Training agent with above hyperparameter values, solves the environment in as fast as 469 episodes. Each episode's score and average score during training is shown below:
 
 <p align="center">
-    <img src="plots/MADDPG_lra1E-03_lrc1E-03_tau1E-01_nstart7.0_ndecay0.999_solved369.png" height="300px">
+    <img src="plots/MADDPG_lra1E-03_lrc1E-03_tau1E-01_nstart7.0_ndecay0.999_solved369.png" height="350px">
 </p>
 
 When checking successfully trained agents, it looks agents learned a policy to do [defensive backspin chop](http://www.larrytt.com/ttsts/Step%2010%20-%20Chopping%20-%20Backspin%20Defense.pdf) and then move close to the net.
