@@ -142,11 +142,12 @@ def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.06, noise_start=5, noise_d
 
     return i_episode-100
 
-# How many times to try same parameter configurations
 '''
 for idx in range(10):
     train_maddpg()
 '''
+
+# How many times to try same parameter configurations
 n_try = 3
 
 # Learning rate
