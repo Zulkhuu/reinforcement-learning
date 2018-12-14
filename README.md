@@ -6,9 +6,9 @@ This repository contains implementations of Deep Reinforcement Learning algorith
 
 ## Projects
 
-* [Navigation](https://github.com/Zulkhuu/reinforcement-learning/tree/master/BananaCollector): DQN agent to collect yellow bananas while avoiding blue bananas.
-* [Continuous Control](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Reacher): DDPG agent to control double-jointed arm.
-* [Collaboration and Competition]| _Coming soon!_
+* [Navigation](https://github.com/Zulkhuu/reinforcement-learning/tree/master/BananaCollector): DQN agent collects yellow bananas while avoiding blue bananas.
+* [Continuous Control](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Reacher): DDPG agent controls double-jointed arm.
+* [Collaboration and Competition](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Tennis): MADDPG agents controls rackets to play Tennis.
 
 ## Dependencies
 
