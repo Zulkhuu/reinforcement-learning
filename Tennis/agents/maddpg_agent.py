@@ -3,7 +3,6 @@ sys.path.append('../')
 
 from collections import namedtuple, deque
 from utils.model import Actor, Critic
-from utils.OUNoise import OUNoise
 from torch.optim import Adam
 import numpy as np
 import random
