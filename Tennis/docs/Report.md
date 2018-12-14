@@ -48,7 +48,7 @@ Novelty of MADDPG algorithm lies in its centralized training and decentralized e
 Another difference from using independent agents, is that MADDPG uses shared replay buffer between agents which holds full environment states, and each agents actions and rewards. Below image illustrates full MADDPG algorithm:
 
 <p align="center">
-  <img src="images/maddpg_algorithm.png" height="400px">
+  <img src="images/maddpg_algorithm.png" height="450px">
 </p>
 
 # Implementation
@@ -62,25 +62,72 @@ Full implementation of MADDPG agent can be found in [maddpg_agent.py](https://gi
 
 # Hyperparameter tuning
 
+Most of the hyperparameters were selected same as Reacher project as networks are similar.
+Batch size, replay buffer size and network sizes were selected same as previous project.
+
+During tuning hyperparameter values, it was noticed that good exploration in the beginning was crucial to the how learning continues.
+It seems that if agent finds good policy early in the training, then it keeps on improving that policy and eventually solves the environment. If agent doesn't find good policy in the beginning, as exploration noise amplitude decays, it becomes harder to find good policy.
+
+Since initial action depends on exploration by noise, even with same hyperparameter settings, training results on different outputs. Even the hyperparameter values which is considered good sometimes results in divergence. Thus, training was executed multiple times to evaluate certain hyperparameter value.
+
+In order to save computation time, training was executed for maximum of 800 episodes and terminates if environment is solved.
+
+Detailed implementation of the hyperparameter tuning can be found in [hyperparameter_tuning.py](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Tennis/utils/hyperparameter_tuning.py) file.
+
+## Learning rate
+
+Same learning rates were used for both actor and critic networks same as Reacher project. Result of trying multiple different learning rate is shown in below graph:
+
+<p align="center">
+  <img src="plots/learning_rates.png" height="400px">
+</p>
+
+It looks like learning rate of 0.001 seems to be optimal value. It resulted much higher scores than smaller or larger learning rate values and solved the environment once in around 500 episodes.
+
+## Soft update parameter (tau)
+
+Trying different values of tau resulted in below graph:
+
+<p align="center">
+  <img src="plots/tau.png" height="400px">
+</p>
+
+It looks like larger value of tau resulted in better performance which indicates that target network needs to be updated much faster than previous Reacher environment.
+
+## Noise scale
+
+Trying different exploration noise scale resulted in below graph:
+
+<p align="center">
+  <img src="plots/noise_scale.png" height="400px">
+</p>
+
+Noise scale of 7 seems to be optimal value that it resulted in solving environment 3 times out of 3 run.
+
+## Noise decay
+
+Trying different exploration noise decay value resulted in below graph:
+
+<p align="center">
+  <img src="plots/noise_decay.png" height="400px">
+</p>
+
+Larger values of 0.999 and 0.996 seems to be encouraging agent to explore more and find good policy.
+
 # Result
 
 Based on above observation, following hyperparameter values were chosen as optimal value.
-- Learning rate for actor networks 1E-04
-- Learning rate for critic networks 1E-04
-- Soft target update tau parameter 0.06
-- OU noise initial scale 5
-- OU noise decay 0.999
-- Batch size 128
+- Learning rate for actor networks 0.001
+- Learning rate for critic networks 0.001
+- Soft target update tau parameter of 0.1
+- Exploration noise initial scale of 7
+- Exploration noise decay of 0.999
 
-Training agent with above hyperparameter values, solves the environment in 640 episodes. Each episode's score and average score during training is shown below:
+Training agent with above hyperparameter values, solves the environment in as fast as 469 episodes. Each episode's score and average score during training is shown below:
 
 <p align="center">
-    <img src="plots/MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart5.0_nt400_solved540.png" height="300px">
+    <img src="plots/MADDPG_lra1E-03_lrc1E-03_tau1E-01_nstart7.0_ndecay0.999_solved369.png" height="300px">
 </p>
-
-Agent was close to solving the environment around episode 440~450, but it diverged and stabilized for next 200 episodes and started improving again around episode 600 and finally solved the environment after 640 episodes.
-
-It seems very easy to diverge once policy becomes bad. It is hard to recover when divergence happens later in the training, since OU noise's scale is already decayed.
 
 When checking successfully trained agents, it looks agents learned a policy to do [defensive backspin chop](http://www.larrytt.com/ttsts/Step%2010%20-%20Chopping%20-%20Backspin%20Defense.pdf) and then move close to the net.
 Trained agents are shown below(Also shown on top of the report):
