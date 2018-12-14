@@ -51,21 +51,20 @@ hyperscores = []
 # Number of episodes for evaluating
 N_EPISODES = 800
 
-def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.06, noise_start=5, noise_duration=400, n_run=0):
+def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.1, noise_decay=0.999, noise_start=7, n_run=0):
 
+    params['n_episodes'] = N_EPISODES
     # Set tunable parameters
     hparams['lr_actor'] = lr_actor
     hparams['lr_critic'] = lr_critic
     hparams['tau'] = tau
-    hparams['eb_start'] = noise_start
-    hparams['eb_duration'] = noise_duration
-    # Run for 200 episodes only
-    params['n_episodes'] = N_EPISODES
+    hparams['noise_start'] = noise_start
+    hparams['noise_decay'] = noise_decay
 
     # Filename string
-    filename = "{:s}_lra{:.0E}_lrc{:.0E}_tau{:.0E}_nstart{:.1f}_nt{:d}_run{:d}"
+    filename = "{:s}_lra{:.0E}_lrc{:.0E}_tau{:.0E}_nstart{:.1f}_ndecay{}_run{:d}"
     filename = filename.format(hparams['agent_name'], hparams['lr_actor'], hparams['lr_critic'],
-                               hparams['tau'], hparams['eb_start'], hparams['eb_duration'], n_run)
+                               hparams['tau'], hparams['noise_start'], hparams['noise_decay'], n_run)
 
     # Create agent instance
     print("Created agent with following hyperparameter values:")
@@ -126,9 +125,9 @@ def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.06, noise_start=5, noise_d
         if np.mean(scores_window)>=params['solve_score']:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, np.mean(scores_window)))
 
-            model_filename = "{:s}_lra{:.0E}_lrc{:.0E}_tau{:.0E}_nstart{:.1f}_nt{:d}_solved{:d}"
+            model_filename = "{:s}_lra{:.0E}_lrc{:.0E}_tau{:.0E}_nstart{:.1f}_ndecay{}_solved{:d}"
             model_filename = model_filename.format(hparams['agent_name'], hparams['lr_actor'], hparams['lr_critic'],
-                hparams['tau'], hparams['eb_start'], hparams['eb_duration'], i_episode-100)
+                hparams['tau'], hparams['noise_start'], hparams['noise_decay'], i_episode-100)
             for idx, agent_ in enumerate(agent.agents):
                 torch.save(agent_.actor_local.state_dict(), '../models/{}_actor{}.pth'.format(model_filename, idx))
                 torch.save(agent_.critic_local.state_dict(), '../models/{}_critic{}.pth'.format(model_filename, idx))
@@ -142,16 +141,17 @@ def train_maddpg(lr_actor=1e-3, lr_critic=1e-3, tau=0.06, noise_start=5, noise_d
 
     return i_episode-100
 
-'''
-for idx in range(10):
-    train_maddpg()
-'''
-
 # How many times to try same parameter configurations
 n_try = 3
 
+# Exploration boost duration
+n_decays = [0.999, 0.996, 0.993, 0.99]
+for idx in range(n_try):
+    for n_decay in n_decays:
+        train_maddpg(noise_decay=n_decay, n_run=idx)
+
 # Learning rate
-lrs = [5e-3, 2e-3, 1e-3, 1e-4, 5e-5]
+lrs = [5E-03, 2E-03, 1E-03, 5E-04, 2E-04, 1E-04, 5E-05]
 for idx in range(n_try):
     for lr in lrs:
         train_maddpg(lr_actor=lr, lr_critic=lr, n_run=idx)
@@ -161,12 +161,6 @@ taus = [0.1, 0.06, 0.05, 0.01, 0.005, 0.001]
 for idx in range(n_try):
     for tau in taus:
         train_maddpg(tau=tau, n_run=idx)
-
-# Exploration boost duration
-n_ts = [500, 400, 350, 300, 250, 200, 150]
-for idx in range(n_try):
-    for n_t in n_ts:
-        train_maddpg(noise_duration=n_t, n_run=idx)
 
 # Exploration boost start
 n_starts = [10, 7, 5, 3, 2, 1]

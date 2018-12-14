@@ -5,95 +5,155 @@ import numpy as np
 
 from cycler import cycler
 
-def plot_lr_actor():
-    csv_filename = '../scores/DDPG_lra{}_lrc1E-04_batch128_fc:256:128.csv'
-    plt_filename = '../docs/plots/lr_actor.png'
+N_TRY = 3
 
-    learning_rates = ['5E-05', '1E-04', '5E-04']
+def plot_lr():
+    csv_filename = '../scores/MADDPG_lra{:.0E}_lrc{:.0E}_tau6E-02_nstart5.0_nt400_run{}.csv'
+    plt_filename = '../docs/plots/learning_rates.png'
 
-    fig, ax = plt.subplots()
+    learning_rates = [5E-03, 2E-03, 1E-03, 5E-04, 2E-04, 1E-04, 5E-05]
 
-    for lra in learning_rates:
-        filename = csv_filename.format(lra)
-        df = pd.read_csv(filename, index_col = 0)
-        plt.plot( df.index, 'scores', data=df,
-            lw=2, label="Actor learning rate:{}".format(lra), alpha=0.8)
+    fig = plt.figure(figsize=(10,5))
 
-    plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b'])))
+    labels = []
+    for lr in learning_rates:
+        for idx in range(N_TRY):
+            filename = csv_filename.format(lr, lr, idx)
+            df = pd.read_csv(filename, index_col = 0)
+            label = "Learning rate:{}".format(lr)
+            labels.append(label)
+            plt.plot( df.index, 'average_scores', data=df,
+                lw=2, label=label, alpha=0.8)
+
+    #Use same color and only one label if labels are same
+    ax = fig.gca()
+    printed_labels = []
+    for i, p in enumerate(ax.get_lines()):
+        if p.get_label() in labels:
+            idx = labels.index(p.get_label())
+            p.set_c(ax.get_lines()[idx].get_c())
+            if p.get_label() in printed_labels:
+                p.set_label('_' + p.get_label())
+            else:
+                printed_labels.append(p.get_label())
 
     plt.xlabel('Episode')
-    plt.ylabel('Score')
+    plt.ylabel('Average Score')
     plt.grid(True, alpha=0.3, linestyle='--')
     plt.legend()
     plt.savefig(plt_filename, bbox_inches='tight')
     plt.show()
 
-def plot_lr_critic():
-    csv_filename = '../scores/DDPG_lra1E-04_lrc{}_batch128_fc:256:128.csv'
-    plt_filename = '../docs/plots/lr_critic.png'
+def plot_tau():
+    csv_filename = '../scores/MADDPG_lra1E-03_lrc1E-03_tau{:.0E}_nstart5.0_nt400_run{}.csv'
+    plt_filename = '../docs/plots/tau.png'
 
-    learning_rates = ['5E-05', '1E-04', '5E-04']
+    taus = [1E-01, 6E-02, 5E-02, 1E-02, 5E-03, 1E-03]
 
-    fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(10,5))
 
-    for lrc in learning_rates:
-        filename = csv_filename.format(lrc)
-        df = pd.read_csv(filename, index_col = 0)
-        plt.plot( df.index, 'scores', data=df,
-            lw=2, label="Critic learning rate:{}".format(lrc), alpha=0.8)
+    labels = []
+    for tau in taus:
+        for idx in range(N_TRY):
+            filename = csv_filename.format(tau, idx)
+            df = pd.read_csv(filename, index_col = 0)
+            label = "Tau:{}".format(tau)
+            labels.append(label)
+            plt.plot( df.index, 'average_scores', data=df,
+                lw=2, label=label, alpha=0.8)
 
-    plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b'])))
+    #Use same color and only one label if labels are same
+    ax = fig.gca()
+    printed_labels = []
+    for i, p in enumerate(ax.get_lines()):
+        if p.get_label() in labels:
+            idx = labels.index(p.get_label())
+            p.set_c(ax.get_lines()[idx].get_c())
+            if p.get_label() in printed_labels:
+                p.set_label('_' + p.get_label())
+            else:
+                printed_labels.append(p.get_label())
 
     plt.xlabel('Episode')
-    plt.ylabel('Score')
+    plt.ylabel('Average Score')
     plt.grid(True, alpha=0.3, linestyle='--')
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.savefig(plt_filename, bbox_inches='tight')
     plt.show()
 
-def plot_batch_size():
-    csv_filename = '../scores/DDPG_lra1E-04_lrc1E-04_batch{}_fc:256:128.csv'
-    plt_filename = '../docs/plots/batch_sizes.png'
+def plot_noise_scale():
+    csv_filename = '../scores/MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart{:.1f}_nt400_run{}.csv'
+    plt_filename = '../docs/plots/noise_scale.png'
 
-    batch_sizes = [256, 128, 64]
+    # Exploration boost start
+    noise_scales = [10, 7, 5, 3, 2, 1]
 
-    fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(10,5))
 
-    for batch_size in batch_sizes:
-        filename = csv_filename.format(batch_size)
-        df = pd.read_csv(filename, index_col = 0)
-        plt.plot( df.index, 'scores', data=df,
-            lw=2, label="Batch size:{}".format(batch_size), alpha=0.8)
+    labels = []
+    for n_scale in noise_scales:
+        for idx in range(N_TRY):
+            filename = csv_filename.format(n_scale, idx)
+            df = pd.read_csv(filename, index_col = 0)
+            label = "Noise scale:{}".format(n_scale)
+            labels.append(label)
+            plt.plot( df.index, 'average_scores', data=df,
+                lw=2, label=label, alpha=0.8)
 
-    plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b'])))
+    #Use same color and only one label if labels are same
+    ax = fig.gca()
+    printed_labels = []
+    for i, p in enumerate(ax.get_lines()):
+        if p.get_label() in labels:
+            idx = labels.index(p.get_label())
+            p.set_c(ax.get_lines()[idx].get_c())
+            if p.get_label() in printed_labels:
+                p.set_label('_' + p.get_label())
+            else:
+                printed_labels.append(p.get_label())
 
     plt.xlabel('Episode')
-    plt.ylabel('Score')
+    plt.ylabel('Average Score')
     plt.grid(True, alpha=0.3, linestyle='--')
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.savefig(plt_filename, bbox_inches='tight')
     plt.show()
 
-def plot_nn_size():
-    csv_filename = '../scores/DDPG_lra1E-04_lrc1E-04_batch128_fc:{}.csv'
-    plt_filename = '../docs/plots/nn_sizes.png'
+def plot_noise_decay():
+    csv_filename = '../scores/MADDPG_lra1E-03_lrc1E-03_tau1E-01_nstart7.0_ndecay{}_run{}.csv'
+    plt_filename = '../docs/plots/noise_decay.png'
 
-    nn_sizes = ['400:300', '256:128', '128:64']
+    # Exploration boost decay
+    n_decays = [0.999, 0.996, 0.993, 0.99]
 
-    fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(10,5))
 
-    for nn_size in nn_sizes:
-        filename = csv_filename.format(nn_size)
-        df = pd.read_csv(filename, index_col = 0)
-        plt.plot( df.index, 'scores', data=df,
-            lw=2, label="hidden layer units:{}".format(nn_size), alpha=0.8)
+    labels = []
+    for n_decay in n_decays:
+        for idx in range(N_TRY):
+            filename = csv_filename.format(n_decay, idx)
+            df = pd.read_csv(filename, index_col = 0)
+            label = "Noise decay:{}".format(n_decay)
+            labels.append(label)
+            plt.plot( df.index, 'average_scores', data=df,
+                lw=2, label=label, alpha=0.8)
 
-    plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b'])))
+    #Use same color and only one label if labels are same
+    ax = fig.gca()
+    printed_labels = []
+    for i, p in enumerate(ax.get_lines()):
+        if p.get_label() in labels:
+            idx = labels.index(p.get_label())
+            p.set_c(ax.get_lines()[idx].get_c())
+            if p.get_label() in printed_labels:
+                p.set_label('_' + p.get_label())
+            else:
+                printed_labels.append(p.get_label())
 
     plt.xlabel('Episode')
-    plt.ylabel('Score')
+    plt.ylabel('Average Score')
     plt.grid(True, alpha=0.3, linestyle='--')
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.savefig(plt_filename, bbox_inches='tight')
     plt.show()
 
@@ -119,17 +179,17 @@ def plot_learning_curve(filename):
 
 #Uncomment the necessary plot and run
 
+# Plot learning rate
+#plot_lr()
+
+# Plot tau
+#plot_tau()
+
+# Plot noise scale
+#plot_noise_scale()
+
 # Plot neural network size
-#plot_nn_size()
-
-# Plot learning rate of actor
-#plot_lr_actor()
-
-# Plot learning rate of critic
-#plot_lr_critic()
-
-# Plot batch sizes
-#plot_batch_size()
+plot_noise_decay()
 
 # Plot learning curve of particular training
-plot_learning_curve('MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart5.0_nt400_solved540')
+#plot_learning_curve('MADDPG_lra1E-03_lrc1E-03_tau6E-02_nstart5.0_nt400_solved540')
