@@ -7,8 +7,8 @@ This repository contains implementations of Deep Reinforcement Learning algorith
 ## Projects
 
 * [Navigation](https://github.com/Zulkhuu/reinforcement-learning/tree/master/BananaCollector): DQN agent collects yellow bananas while avoiding blue bananas.
-* [Continuous Control](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Reacher): DDPG agent controls double-jointed arm.
-* [Collaboration and Competition](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Tennis): MADDPG agents controls rackets to play Tennis.
+* [Continuous Control](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Reacher): DDPG agent controls double-jointed arm to reach ball.
+* [Collaboration and Competition](https://github.com/Zulkhuu/reinforcement-learning/tree/master/Tennis): MADDPG agents control rackets to play Tennis.
 
 ## Dependencies
 
@@ -49,8 +49,7 @@ python -m ipykernel install --user --name drlnd --display-name "drlnd"
 
 ## Future work
 
-- Continuous control - Train an robotic arm to reach target locations using actor critic method
-- Collaboration and Competition - Train a pair of agents to play tennis
+- Collaboration and Competition - Train a pair of agents to play soccer
 
 ## Resources
 
