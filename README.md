@@ -54,11 +54,29 @@ python -m ipykernel install --user --name drlnd --display-name "drlnd"
 ## Resources
 
 ### Online courses
-* [Deep RL Bootcamp](https://sites.google.com/view/deep-rl-bootcamp/lectures)
-* [Deep Reinforcement Learning UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/)
+* [UC Berkeley's Deep RL Bootcamp](https://sites.google.com/view/deep-rl-bootcamp/lectures)
+* [UC Berkeley's Deep Reinforcement Learning course](http://rail.eecs.berkeley.edu/deeprlcourse/)
 * [David Silver's course on reinforcement learning](http://www0.cs.ucl.ac.uk/staff/D.Silver/web/Teaching.html)
+* [DeepMind's Advanced Deep Learning & Reinforcement Learning course](https://www.youtube.com/watch?v=iOh7QUZGyiU&list=PLqYmG7hTraZDNJre23vqCGIVpfZ_K2RZs)
 * [Udacity Deep Reinforcement Learning Nanodegree program](https://www.udacity.com/)
 
 ### Textbooks
-* [The Deep Learning textbook](http://www.deeplearningbook.org/)
-* [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html)
+* [Ian Goodfellow: The Deep Learning textbook](http://www.deeplearningbook.org/)
+* [Sutton & Barto: Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html)
+* [Miguel Morales: Grokking Deep Reinforcement Learning](https://www.manning.com/books/grokking-deep-reinforcement-learning)
+
+### Papers
+* [Human-level control through deep reinforcement learning](https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf)
+* [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf)
+* [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
+* [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
+* [Noisy Networks for Exploration](https://arxiv.org/abs/1706.10295)
+* [Rainbow: Combining Improvements in Deep Reinforcement Learning](https://arxiv.org/abs/1710.02298)
+* [Distributional Reinforcement Learning with Quantile Regression](https://arxiv.org/pdf/1710.10044)
+* [Neural Episodic Control](https://arxiv.org/pdf/1703.01988)
+* [Deterministic Policy Gradient Algorithms](http://proceedings.mlr.press/v32/silver14.pdf)
+* [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/pdf/1602.01783.pdf)
+* [Trust Region Policy Optimization](https://arxiv.org/pdf/1502.05477.pdf)
+* [Proximal Policy Optimization Algorithms](https://arxiv.org/pdf/1707.06347.pdf)
+* [Continuous control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf)
+* [Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/pdf/1706.02275.pdf)
