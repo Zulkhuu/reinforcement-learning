@@ -29,7 +29,7 @@ The task is episodic, and in order to solve the environment, agent must get an a
 
 ### Instructions
 
-Follow the instructions in [`Reacher.ipynb`](Tennis.ipynb) to get started with training your the agent or watch already trained agent running!
+Follow the instructions in [`Reacher.ipynb`](Reacher.ipynb) to get started with training your the agent or watch already trained agent running!
 
 ## Documentation
 
