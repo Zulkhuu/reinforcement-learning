@@ -6,6 +6,7 @@
 BananaCollector/Banana_Linux/
 Reacher/Reacher_Linux/
 Tennis/Tennis_Linux/
+Soccer/Soccer_Linux/
 
 # Python binaries
 **/__pycache__/
